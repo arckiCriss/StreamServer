@@ -397,7 +397,7 @@ static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 				Offset = (Length - 5);
 			}
 
-			auto Opcodes = (PUCHAR)malloc(5);
+			UCHAR Opcodes[5];
 			Opcodes[0] = OP_JMP_IMM32;
 			memcpy(&Opcodes[1], &Offset, 4);
 
@@ -412,8 +412,6 @@ static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 			NP.BodyLength = sizeof(NB);
 
 			Client->Send(&NP);
-			free(Opcodes);
-
 			Injected = TRUE;
 		}
 	}
