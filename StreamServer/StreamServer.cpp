@@ -375,6 +375,7 @@ static void OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 	// If we injected other instructions in place of the original one..
 	//
 	auto Injected = FALSE;
+#ifdef UNROLL_CONTROL_FLOW
 	if (u.operand[0].type == ud_type::UD_OP_JIMM) {
 		if (JmpFlagTable[u.mnemonic]) {
 			auto Cleaned = JmpFlagTable[u.mnemonic] & 0xfffffffu;
@@ -422,6 +423,7 @@ static void OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 			Injected = TRUE;
 		}
 	}
+#endif
 
 	if (!Injected) {
 		PacketS2CWrite NB;

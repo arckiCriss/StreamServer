@@ -16,3 +16,8 @@
 // The port to bind to for accepting connections.
 //
 #define BIND_PORT "8263"
+
+//
+// If defined, all conditional branches will be replaced with direct ones.
+//
+#define UNROLL_CONTROL_FLOW
