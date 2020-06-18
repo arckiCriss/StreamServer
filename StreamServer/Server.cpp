@@ -202,9 +202,9 @@ NOINLINE void ServerClient::Tick() {
 	}
 }
 
-NOINLINE void ServerClient::SendFragment(Packet *Packet, uint32_t SendId, uint32_t Parts, uint32_t PartIdx) {
+NOINLINE void ServerClient::SendFragment(Packet *Packet, UINT32 SendId, UINT32 Parts, UINT32 PartIdx) {
 	auto BufBegin = PartIdx * PACKET_LEN;
-	auto BufLen = min((uint32_t)PACKET_LEN, Packet->BodyLength - BufBegin);
+	auto BufLen = min((UINT32)PACKET_LEN, Packet->BodyLength - BufBegin);
 
 	auto Fragment = PacketFragment();
 	Fragment.TotalSize = Packet->BodyLength;
@@ -259,7 +259,7 @@ NOINLINE void Server::Stop() {
 	closesocket(ServerSocket);
 }
 
-NOINLINE void Server::RegisterHandler(uint8_t Opcode, FnHandleServerPacket Func, PVOID Ctx, uint64_t MinimumLength) {
+NOINLINE void Server::RegisterHandler(UINT8 Opcode, FnHandleServerPacket Func, PVOID Ctx, uint64_t MinimumLength) {
 	ServerPacketHandler Handler;
 	Handler.Ctx = Ctx;
 	Handler.Func = Func;

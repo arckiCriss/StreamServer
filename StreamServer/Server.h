@@ -219,7 +219,7 @@ struct ServerPacketHandler {
 	//
 	// The minimum length of packets coming into this handler.
 	//
-	uint64_t MinimumLength;
+	UINT64 MinimumLength;
 };
 
 //
@@ -279,7 +279,7 @@ public:
 
 public:
 	//
-	// Handles a network manager tick.
+	// Handles a client tick.
 	//
 	void Tick();
 

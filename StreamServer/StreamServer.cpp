@@ -32,7 +32,7 @@ static unsigned int JmpFlagTable[500] = { 0 };
 //
 // Retrieves the size of the loaded image.
 //
-static uint64_t SizeOfImage() {
+static UINT64 SizeOfImage() {
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
 	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 	return Nt->OptionalHeader.SizeOfImage;
@@ -41,7 +41,7 @@ static uint64_t SizeOfImage() {
 //
 // Retrieves the entry poitn of the loaded image.
 //
-static uint64_t EpOfImage() {
+static UINT64 EpOfImage() {
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
 	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 	return Nt->OptionalHeader.AddressOfEntryPoint;
@@ -363,7 +363,7 @@ static void OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 
 	ud_t u;
 	ud_init(&u);
-	ud_set_input_buffer(&u, (uint8_t*)Client->Image + Off, SizeOfImage() - Off);
+	ud_set_input_buffer(&u, (UINT8*)Client->Image + Off, SizeOfImage() - Off);
 	ud_set_mode(&u, 64);
 	auto Length = ud_disassemble(&u);
 	if (Length <= 0 || Length > 0x15) {
@@ -387,7 +387,7 @@ static void OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 				BranchTaken = (Body->State.EFlags & Cleaned) == 0x0;
 			}
 
-			uint32_t Offset;
+			UINT32 Offset;
 			if (BranchTaken) {
 				// jmp directly there
 				memcpy(&Offset, (PCHAR)Client->Image + Off + Length - 4, 4);
