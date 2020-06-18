@@ -2,6 +2,8 @@
 A binary stream server. This server streams a PE file in instruction by instruction, while mutating the result so that the 
 original code is not recoverable.
 
+![G](https://i.imgur.com/h72lzH7.gif)
+
 ## Limitations
 * Code that reads itself is unstable, as such, some packers (VMP virtualization) are unstable [1]  
 * Imports are not currently working, but are planned (use function pointers, PEB, etc. until then)  
@@ -9,7 +11,8 @@ original code is not recoverable.
   
 
 [1] It's possible to detect where the client is reading memory at, and load that memory in, so that such code may work. I may 
-add this to the repository at some point if it is stable.
+add this to the repository at some point if it is stable. I did manage to run a VMP ultra binary with a few minutes of testing, 
+although it needs further work.
 
 ## Planned
 This is a short list of things I plan to do myself over the following months.  
