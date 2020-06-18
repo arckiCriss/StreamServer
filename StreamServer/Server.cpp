@@ -130,7 +130,7 @@ NOINLINE BOOLEAN ServerClient::AttemptRecv(VOID) {
 	auto Decoded = FALSE;
 	if (Connected) {
 		auto RecvAmt = 0;
-		auto HeaderSize = sizeof(PacketFragment) - 0x200;
+		auto HeaderSize = sizeof(PacketFragment) - PACKET_LEN;
 		if (HeaderSize > FragmentOff) {
 			RecvAmt = (int)(HeaderSize - FragmentOff);
 		} else {
