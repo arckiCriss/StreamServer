@@ -294,7 +294,7 @@ bool IsCode(ServerClient *Client, void *Addr) {
 //
 static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client, Packet *P) {
 	if (Client->Allocated) {
-		// TODO FIXME disconnect
+		Client->Disconnect();
 		return;
 	}
 
@@ -304,7 +304,7 @@ static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client,
 
 	auto Body = (PacketC2SInitialized*)P->Body;
 	if (!Body->Allocated) {
-		// TODO FIXME disconnect
+		Client->Disconnect();
 		return;
 	}
 
@@ -335,7 +335,7 @@ static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client,
 //
 static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *Client, Packet *P) {
 	if (!Client->Allocated) {
-		// TODO FIXME disconnect
+		Client->Disconnect();
 		return;
 	}
 

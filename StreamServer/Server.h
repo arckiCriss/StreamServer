@@ -298,6 +298,11 @@ public:
 	// Sends a packet to the host.
 	//
 	void Send(Packet *Packet);
+
+	//
+	// Disconnects this client from the server.
+	//
+	void Disconnect();
 };
 
 typedef void(*FnOnNewConnection)(ServerClient *Client);

@@ -246,6 +246,15 @@ NOINLINE void ServerClient::Send(Packet *packet) {
 	}
 }
 
+NOINLINE void ServerClient::Disconnect() {
+	if (!Connected) {
+		return;
+	}
+
+	Connected = FALSE;
+	closesocket(Socket);
+}
+
 NOINLINE void Server::Stop() {
 	closesocket(ServerSocket);
 }
