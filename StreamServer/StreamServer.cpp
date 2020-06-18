@@ -397,13 +397,13 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 			}
 
 			auto Opcodes = (unsigned char*)malloc(Length);
-			Opcodes[0] = 0xe9;
+			Opcodes[0] = OP_JMP_IMM32;
 			memcpy(&Opcodes[1], &Offset, 4);
 
 			// nop remaining bytes
 			auto Remaining = Length - 5;
 			for (auto i = 0; i < Remaining; i++) {
-				Opcodes[i + 5] = 0x90;
+				Opcodes[i + 5] = OP_NOP;
 			}
 
 			PacketS2CWrite NB;
