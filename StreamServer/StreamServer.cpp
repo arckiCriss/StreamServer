@@ -395,7 +395,7 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 				Offset = (Length - 5);
 			}
 
-			unsigned char *Opcodes = (unsigned char*)malloc(Length);
+			auto Opcodes = (unsigned char*)malloc(Length);
 			Opcodes[0] = 0xe9;
 			memcpy(&Opcodes[1], &Offset, 4);
 
