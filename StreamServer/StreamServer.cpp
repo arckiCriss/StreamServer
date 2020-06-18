@@ -308,7 +308,7 @@ static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client,
 		return;
 	}
 
-	LOG("Iniitalized at " << Body->Allocated);
+	LOG("Initialized at " << Body->Allocated);
 	Client->Allocated = Body->Allocated;
 	Client->Image = malloc(Nt->OptionalHeader.SizeOfImage);
 
@@ -343,8 +343,6 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
 
 	auto Body = (PacketC2SRequestInstruction*)P->Body;
-	LOG("Requesting at " << Body->Address);
-
 	auto Off = (UINT64)Body->Address - (UINT64)Client->Allocated;
 	if (!IsWithinBounds(Client, Body->Address)) {
 		LOG("Request out of bounds...");
