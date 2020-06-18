@@ -1,11 +1,12 @@
 #pragma once
-
 #include <vector>
 #include <winsock2.h>
 #include <WS2tcpip.h>
 #include <windows.h>
 #include <cstdint>
 #include <map>
+
+#include "Arch.h"
 
 #pragma comment (lib, "Ws2_32.lib")
 
@@ -379,24 +380,7 @@ struct PacketC2SRequestInstruction {
 	//
 	// CPU state.
 	//
-	DWORD64 Rax;
-	DWORD64 Rcx;
-	DWORD64 Rdx;
-	DWORD64 Rbx;
-	DWORD64 Rsp;
-	DWORD64 Rbp;
-	DWORD64 Rsi;
-	DWORD64 Rdi;
-	DWORD64 R8;
-	DWORD64 R9;
-	DWORD64 R10;
-	DWORD64 R11;
-	DWORD64 R12;
-	DWORD64 R13;
-	DWORD64 R14;
-	DWORD64 R15;
-	DWORD64 Rip;
-	DWORD EFlags;
+	CpuState State;
 };
 
 //

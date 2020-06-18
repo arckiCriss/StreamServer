@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Arch.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="Net.h" />
     <ClInclude Include="pch.h" />

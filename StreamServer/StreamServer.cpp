@@ -165,92 +165,92 @@ static void WriteFromImage(ServerClient *Client, void *At, size_t Size) {
 //
 // Retrieves the address of a register.
 //
-static void *GetRegAddr(PacketC2SRequestInstruction *Body, ud_type r) {
+static void *GetRegAddr(CpuState *State, ud_type r) {
 	switch (r) {
 	case ud_type::UD_R_AL:
 	case ud_type::UD_R_AH:
 	case ud_type::UD_R_AX:
 	case ud_type::UD_R_EAX:
 	case ud_type::UD_R_RAX:
-		return (void*)Body->Rax;
+		return (void*)State->Rax;
 	case ud_type::UD_R_CL:
 	case ud_type::UD_R_CH:
 	case ud_type::UD_R_CX:
 	case ud_type::UD_R_ECX:
 	case ud_type::UD_R_RCX:
-		return (void*)Body->Rcx;
+		return (void*)State->Rcx;
 	case ud_type::UD_R_DL:
 	case ud_type::UD_R_DH:
 	case ud_type::UD_R_DX:
 	case ud_type::UD_R_EDX:
 	case ud_type::UD_R_RDX:
-		return (void*)Body->Rdx;
+		return (void*)State->Rdx;
 	case ud_type::UD_R_BL:
 	case ud_type::UD_R_BH:
 	case ud_type::UD_R_BX:
 	case ud_type::UD_R_EBX:
 	case ud_type::UD_R_RBX:
-		return (void*)Body->Rbx;
+		return (void*)State->Rbx;
 	case ud_type::UD_R_SP:
 	case ud_type::UD_R_ESP:
 	case ud_type::UD_R_RSP:
-		return (void*)Body->Rsp;
+		return (void*)State->Rsp;
 	case ud_type::UD_R_BP:
 	case ud_type::UD_R_EBP:
 	case ud_type::UD_R_RBP:
-		return (void*)Body->Rbp;
+		return (void*)State->Rbp;
 	case ud_type::UD_R_SIL:
 	case ud_type::UD_R_SI:
 	case ud_type::UD_R_ESI:
 	case ud_type::UD_R_RSI:
-		return (void*)Body->Rsi;
+		return (void*)State->Rsi;
 	case ud_type::UD_R_DIL:
 	case ud_type::UD_R_DI:
 	case ud_type::UD_R_EDI:
 	case ud_type::UD_R_RDI:
-		return (void*)Body->Rdi;
+		return (void*)State->Rdi;
 	case ud_type::UD_R_R8B:
 	case ud_type::UD_R_R8W:
 	case ud_type::UD_R_R8D:
 	case ud_type::UD_R_R8:
-		return (void*)Body->R8;
+		return (void*)State->R8;
 	case ud_type::UD_R_R9B:
 	case ud_type::UD_R_R9W:
 	case ud_type::UD_R_R9D:
 	case ud_type::UD_R_R9:
-		return (void*)Body->R9;
+		return (void*)State->R9;
 	case ud_type::UD_R_R10B:
 	case ud_type::UD_R_R10W:
 	case ud_type::UD_R_R10D:
 	case ud_type::UD_R_R10:
-		return (void*)Body->R10;
+		return (void*)State->R10;
 	case ud_type::UD_R_R11B:
 	case ud_type::UD_R_R11W:
 	case ud_type::UD_R_R11D:
 	case ud_type::UD_R_R11:
-		return (void*)Body->R11;
+		return (void*)State->R11;
 	case ud_type::UD_R_R12B:
 	case ud_type::UD_R_R12W:
 	case ud_type::UD_R_R12D:
 	case ud_type::UD_R_R12:
-		return (void*)Body->R12;
+		return (void*)State->R12;
 	case ud_type::UD_R_R13B:
 	case ud_type::UD_R_R13W:
 	case ud_type::UD_R_R13D:
 	case ud_type::UD_R_R13:
-		return (void*)Body->R13;
+		return (void*)State->R13;
 	case ud_type::UD_R_R14B:
 	case ud_type::UD_R_R14W:
 	case ud_type::UD_R_R14D:
 	case ud_type::UD_R_R14:
-		return (void*)Body->R14;
+		return (void*)State->R14;
 	case ud_type::UD_R_R15B:
 	case ud_type::UD_R_R15W:
 	case ud_type::UD_R_R15D:
 	case ud_type::UD_R_R15:
-		return (void*)Body->R15;
+		return (void*)State->R15;
 	case ud_type::UD_R_RIP:
-		return (void*)Body->Rip;
+		return (void*)State->Rip;
 	default:
 		LOG("Unknown type " << r);
 		return NULL;
@@ -356,9 +356,9 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 		if (JmpFlagTable[u.mnemonic]) {
 			auto Cleaned = JmpFlagTable[u.mnemonic] & 0xfffffffu;
 			if (JmpFlagTable[u.mnemonic] & SET_BIT) {
-				BranchTaken = (Body->EFlags & Cleaned) == Cleaned;
+				BranchTaken = (Body->State.EFlags & Cleaned) == Cleaned;
 			} else {
-				BranchTaken = (Body->EFlags & Cleaned) == 0x0;
+				BranchTaken = (Body->State.EFlags & Cleaned) == 0x0;
 			}
 
 			uint32_t Offset;
