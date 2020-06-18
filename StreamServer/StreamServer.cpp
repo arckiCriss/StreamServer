@@ -374,11 +374,10 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 
 	auto Injected = FALSE;
 	if (u.operand[0].type == ud_type::UD_OP_JIMM) {
-		auto BranchTaken = FALSE;
-		auto Condition = TRUE;
-
 		if (JmpFlagTable[u.mnemonic]) {
 			auto Cleaned = JmpFlagTable[u.mnemonic] & 0xfffffffu;
+			auto BranchTaken = FALSE;
+
 			if (JmpFlagTable[u.mnemonic] & SET_BIT) {
 				BranchTaken = (Body->State.EFlags & Cleaned) == Cleaned;
 			} else {
