@@ -6,7 +6,6 @@ original code is not recoverable.
 
 ## Limitations
 * Code that reads itself is unstable, as such, some packers (VMP virtualization) are unstable [1]  
-* Imports are not currently working, but are planned (use function pointers, PEB, etc. until then)  
 * SEH is not tested  
   
 
@@ -17,10 +16,9 @@ although it needs further work.
 ## Planned
 This is a short list of things I plan to do myself over the following months.  
 
-1) Full IAT support
-2) Support for relocating code so that it may be executed in different regions randomly
-3) Outputting mutated code, possibly using a JIT compiler of some sort
-4) Unit tests
+1) Support for relocating code so that it may be executed in different regions randomly
+2) Outputting mutated code, possibly using a JIT compiler of some sort
+3) Unit tests
 
 ## Building
 1) Build libudis86
