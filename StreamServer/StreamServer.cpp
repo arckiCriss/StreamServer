@@ -494,8 +494,8 @@ BOOLEAN InitImage(const std::string &Path) {
 		return FALSE;
 	}
 
-	auto WholePath = Path + Directory;
-	std::basic_ifstream<BYTE> File(Path.c_str(), std::ios::binary);
+	auto WholePath = std::string(Directory) + "\\" + Path;
+	std::basic_ifstream<BYTE> File(WholePath.c_str(), std::ios::binary);
 	auto Bytes = std::vector<BYTE>((std::istreambuf_iterator<BYTE>(File)), std::istreambuf_iterator<BYTE>());
 
 	Image = (char*)malloc(Bytes.size());
