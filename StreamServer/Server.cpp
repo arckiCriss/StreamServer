@@ -1,11 +1,12 @@
 #include "Server.h"
 #include "Logging.h"
+#include "Config.h"
 
 #include <future>
 #include <thread>
 #include <chrono>
 
-__declspec(noinline) void Server::HandlePacket(Packet *Incoming, ServerClient *Client) {
+NOINLINE void Server::HandlePacket(Packet *Incoming, ServerClient *Client) {
 	auto Handler = PacketHandlers[Incoming->Opcode];
 	if (auto Func = Handler.Func) {
 		if (Incoming->BodyLength < Handler.MinimumLength) {
@@ -39,13 +40,13 @@ static void HandleConnection(NEW_THREAD_CONTEXT *Context) {
 	}
 }
 
-__declspec(noinline) bool Server::Init() {
+NOINLINE bool Server::Init() {
 	LOG("WSAStartup");
 	WSAStartup(MAKEWORD(2, 2), &WsaData);
 	return true;
 }
 
-__declspec(noinline) bool Server::Bind() {
+NOINLINE bool Server::Bind() {
 	struct addrinfo *Result = NULL;
 	struct addrinfo Hints;
 
@@ -92,7 +93,7 @@ __declspec(noinline) bool Server::Bind() {
 	return true;
 }
 
-__declspec(noinline) void Server::Accept() {
+NOINLINE void Server::Accept() {
 	while (Binded) {
 		auto Future = std::async(std::launch::async, [&]() -> SOCKET {
 			return accept(ServerSocket, (sockaddr*)NULL, (int*)NULL);
@@ -125,7 +126,7 @@ __declspec(noinline) void Server::Accept() {
 	}
 }
 
-__declspec(noinline) bool ServerClient::AttemptRecv() {
+NOINLINE bool ServerClient::AttemptRecv() {
 	auto Decoded = false;
 	if (Connected) {
 		auto RecvAmt = 0;
@@ -195,13 +196,13 @@ __declspec(noinline) bool ServerClient::AttemptRecv() {
 	return Decoded;
 }
 
-__declspec(noinline) void ServerClient::Tick() {
+NOINLINE void ServerClient::Tick() {
 	if (Connected) {
 		for (auto i = 0; i < 10000 && AttemptRecv(); i++);
 	}
 }
 
-__declspec(noinline) void ServerClient::SendFragment(Packet *Packet, uint32_t SendId, uint32_t Parts, uint32_t PartIdx) {
+NOINLINE void ServerClient::SendFragment(Packet *Packet, uint32_t SendId, uint32_t Parts, uint32_t PartIdx) {
 	auto BufBegin = PartIdx * PACKET_LEN;
 	auto BufLen = min((uint32_t)PACKET_LEN, Packet->BodyLength - BufBegin);
 
@@ -233,7 +234,7 @@ __declspec(noinline) void ServerClient::SendFragment(Packet *Packet, uint32_t Se
 	}
 }
 
-__declspec(noinline) void ServerClient::Send(Packet *packet) {
+NOINLINE void ServerClient::Send(Packet *packet) {
 	auto count = packet->BodyLength / PACKET_LEN;
 	if (packet->BodyLength % PACKET_LEN) {
 		count += 1;
@@ -245,11 +246,11 @@ __declspec(noinline) void ServerClient::Send(Packet *packet) {
 	}
 }
 
-__declspec(noinline) void Server::Stop() {
+NOINLINE void Server::Stop() {
 	closesocket(ServerSocket);
 }
 
-__declspec(noinline) void Server::RegisterHandler(uint8_t Opcode, FnHandleServerPacket Func, void *Ctx, uint64_t MinimumLength) {
+NOINLINE void Server::RegisterHandler(uint8_t Opcode, FnHandleServerPacket Func, void *Ctx, uint64_t MinimumLength) {
 	ServerPacketHandler Handler;
 	Handler.Ctx = Ctx;
 	Handler.Func = Func;
