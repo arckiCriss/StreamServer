@@ -299,6 +299,7 @@ public:
 	//
 	VOID Send(Packet *Packet);
 
+public:
 	//
 	// Disconnects this client from the server.
 	//
