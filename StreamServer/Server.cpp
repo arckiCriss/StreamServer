@@ -136,7 +136,7 @@ __declspec(noinline) bool ServerClient::AttemptRecv() {
 			RecvAmt = (int)(HeaderSize - FragmentOff);
 		} else {
 			auto Rel = FragmentOff - HeaderSize;
-			RecvAmt = (int)(CurrentPart.part_size - Rel);
+			RecvAmt = (int)(CurrentPart.PartSize - Rel);
 		}
 
 		if (RecvAmt) {
@@ -152,16 +152,42 @@ __declspec(noinline) bool ServerClient::AttemptRecv() {
 				Decoded = true;
 			}
 		} else {
+			//
+			// Verify the packet is not too big
+			//
+			if (CurrentPart.TotalSize > Server->MaxPacketSize) {
+				if (auto E = Server->OnMalformedData) {
+					E(this);
+				}
+
+				FragmentOff = 0;
+				Decoded = true;
+				return true;
+			}
+
 			auto &Trace = Traces[CurrentPart.Id];
 			Trace.Assemble(CurrentPart);
 
 			if (Trace.IsComplete()) {
-				auto Pkt = Packet();
-				if (Trace.Combine(&Pkt)) {
-					Server->HandlePacket(&Pkt, this);
+				//
+				// Verify the packet is consistent..
+				//
+				if (!Trace.Verify()) {
+					if (auto E = Server->OnMalformedData) {
+						E(this);
+					}
+
+					FragmentOff = 0;
+					Decoded = true;
+					return true;
 				}
-				Traces[CurrentPart.Id] = PacketTrace();
 			}
+
+			auto Pkt = Packet();
+			if (Trace.Combine(&Pkt)) {
+				Server->HandlePacket(&Pkt, this);
+			}
+			Traces[CurrentPart.Id] = PacketTrace();
 
 			FragmentOff = 0;
 			Decoded = true;
@@ -184,7 +210,7 @@ __declspec(noinline) void ServerClient::SendFragment(Packet *Packet, uint32_t Se
 	auto Fragment = PacketFragment();
 	Fragment.TotalSize = Packet->BodyLength;
 	Fragment.TotalParts = Parts;
-	Fragment.part_size = BufLen;
+	Fragment.PartSize = BufLen;
 	Fragment.Id = SendId;
 	Fragment.Part = PartIdx;
 	Fragment.Opcode = Packet->Opcode;

@@ -64,7 +64,7 @@ struct PacketFragment {
 	//
 	// The size of this part.
 	//
-	uint16_t part_size;
+	uint16_t PartSize;
 	//
 	// The index of this part.
 	//
@@ -136,6 +136,29 @@ struct PacketTrace {
 	}
 
 	//
+	// Verifies the parts of this packet.
+	//
+	inline bool Verify() {
+		for (auto i = 0u; i < Root.TotalParts; i++) {
+			if (Fragments[i].PartSize > Root.TotalSize) {
+				return false;
+			}
+
+			for (auto j = 0u; j < Root.TotalParts; j++) {
+				if (Fragments[i].TotalSize != Fragments[j].TotalSize) {
+					return false;
+				}
+
+				if (Fragments[i].TotalParts != Fragments[j].TotalParts) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	//
 	// Determines if this trace is completed.
 	//
 	// @return If this packet is complete.
@@ -176,8 +199,8 @@ struct PacketTrace {
 		auto Offset = 0;
 		for (auto i = 0u; i < Root.TotalParts; i++) {
 			auto fragment = &Fragments[i];
-			memcpy(Buf + Offset, fragment->Body, fragment->part_size);
-			Offset += fragment->part_size;
+			memcpy(Buf + Offset, fragment->Body, fragment->PartSize);
+			Offset += fragment->PartSize;
 		}
 
 		Packet->Opcode = GetOpcode();
@@ -291,6 +314,7 @@ public:
 
 typedef void(*FnOnNewConnection)(ServerClient *Client);
 typedef void(*FnOnBadPacket)(ServerClient *Client, Packet *Packet);
+typedef void(*FnOnMalformedData)(ServerClient *Client);
 
 //
 // A server.
@@ -319,6 +343,10 @@ public:
 
 public:
 	//
+	// The maximum size of a packet.
+	//
+	uint64_t MaxPacketSize = 0x10000;
+	//
 	// New connection event handler.
 	//
 	FnOnNewConnection OnNewConnection = NULL;
@@ -326,6 +354,10 @@ public:
 	// Bad packet event handler.
 	//
 	FnOnBadPacket OnBadPacket = NULL;
+	//
+	// Malformed data event handler.
+	//
+	FnOnMalformedData OnMalformedData = NULL;
 
 public:
 	//
