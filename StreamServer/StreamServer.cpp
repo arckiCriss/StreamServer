@@ -314,10 +314,6 @@ static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client,
 		return;
 	}
 
-
-	auto Dos = (PIMAGE_DOS_HEADER)Image;
-	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
-
 	auto Body = (PacketC2SInitialized*)P->Body;
 	if (!Body->Allocated) {
 		Client->Disconnect();
@@ -326,7 +322,10 @@ static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client,
 
 	LOG("Initialized at " << Body->Allocated);
 	Client->Allocated = Body->Allocated;
-	Client->Image = malloc(Nt->OptionalHeader.SizeOfImage);
+	Client->Image = malloc(SizeOfImage());
+
+	auto Dos = (PIMAGE_DOS_HEADER)Image;
+	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
 
 	PeMapHeaders((PBYTE)Image, Nt, (PBYTE)Client->Image);
 	PeMapSections((PBYTE)Image, Nt, (PBYTE)Client->Image);
@@ -354,9 +353,6 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 		Client->Disconnect();
 		return;
 	}
-
-	auto Dos = (PIMAGE_DOS_HEADER)Image;
-	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
 
 	auto Body = (PacketC2SRequestInstruction*)P->Body;
 	auto Off = (UINT64)Body->Address - (UINT64)Client->Allocated;
