@@ -32,7 +32,7 @@ struct Packet {
 	//
 	// Nulls the packet body.
 	//
-	inline VOID Null() {
+	inline VOID Null(VOID) {
 		Body = NULL;
 		BodyLength = 0;
 	}
@@ -110,7 +110,7 @@ struct PacketTrace {
 	//
 	// @return The id of this packet.
 	//
-	inline UINT16 GetId() {
+	inline UINT16 GetId(VOID) {
 		return Root.Id;
 	}
 
@@ -119,14 +119,14 @@ struct PacketTrace {
 	//
 	// @return The opcode of this packet.
 	//
-	inline UINT8 GetOpcode() {
+	inline UINT8 GetOpcode(VOID) {
 		return Root.Opcode;
 	}
 
 	//
 	// Verifies the parts of this packet.
 	//
-	inline BOOLEAN Verify() {
+	inline BOOLEAN Verify(VOID) {
 		for (auto i = 0u; i < Root.TotalParts; i++) {
 			if (Fragments[i].PartSize > Root.TotalSize) {
 				return FALSE;
@@ -151,7 +151,7 @@ struct PacketTrace {
 	//
 	// @return If this packet is complete.
 	//
-	inline BOOLEAN IsComplete() {
+	inline BOOLEAN IsComplete(VOID) {
 		if (Fragments.size() < Root.TotalParts) {
 			return FALSE;
 		}
@@ -281,13 +281,13 @@ public:
 	//
 	// Handles a client tick.
 	//
-	VOID Tick();
+	VOID Tick(VOID);
 
 public:
 	//
 	// Attempts to receive from this client.
 	//
-	BOOLEAN AttemptRecv();
+	BOOLEAN AttemptRecv(VOID);
 
 public:
 	//
@@ -302,7 +302,7 @@ public:
 	//
 	// Disconnects this client from the server.
 	//
-	VOID Disconnect();
+	VOID Disconnect(VOID);
 };
 
 typedef VOID(*FnOnNewConnection)(ServerClient *Client);
@@ -369,18 +369,18 @@ public:
 	//
 	// Initializes the server.
 	//
-	BOOLEAN Init();
+	BOOLEAN Init(VOID);
 	//
 	// Binds to the server port.
 	//
-	BOOLEAN Bind();
+	BOOLEAN Bind(VOID);
 	//
 	// Accepts new connections.
 	//
-	VOID Accept();
+	VOID Accept(VOID);
 	//
 	// Stops the server.
 	//
-	VOID Stop();
+	VOID Stop(VOID);
 };
 #pragma pack(pop)

@@ -40,13 +40,13 @@ static VOID HandleConnection(NEW_THREAD_CONTEXT *Context) {
 	}
 }
 
-NOINLINE BOOLEAN Server::Init() {
+NOINLINE BOOLEAN Server::Init(VOID) {
 	LOG("WSAStartup");
 	WSAStartup(MAKEWORD(2, 2), &WsaData);
 	return TRUE;
 }
 
-NOINLINE BOOLEAN Server::Bind() {
+NOINLINE BOOLEAN Server::Bind(VOID) {
 	struct addrinfo *Result = NULL;
 	struct addrinfo Hints;
 
@@ -93,7 +93,7 @@ NOINLINE BOOLEAN Server::Bind() {
 	return TRUE;
 }
 
-NOINLINE VOID Server::Accept() {
+NOINLINE VOID Server::Accept(VOID) {
 	while (Binded) {
 		auto Future = std::async(std::launch::async, [&]() -> SOCKET {
 			return accept(ServerSocket, (sockaddr*)NULL, (int*)NULL);
@@ -126,7 +126,7 @@ NOINLINE VOID Server::Accept() {
 	}
 }
 
-NOINLINE BOOLEAN ServerClient::AttemptRecv() {
+NOINLINE BOOLEAN ServerClient::AttemptRecv(VOID) {
 	auto Decoded = FALSE;
 	if (Connected) {
 		auto RecvAmt = 0;
@@ -196,7 +196,7 @@ NOINLINE BOOLEAN ServerClient::AttemptRecv() {
 	return Decoded;
 }
 
-NOINLINE VOID ServerClient::Tick() {
+NOINLINE VOID ServerClient::Tick(VOID) {
 	if (Connected) {
 		for (auto i = 0; i < 10000 && AttemptRecv(); i++);
 	}
@@ -246,7 +246,7 @@ NOINLINE VOID ServerClient::Send(Packet *packet) {
 	}
 }
 
-NOINLINE VOID ServerClient::Disconnect() {
+NOINLINE VOID ServerClient::Disconnect(VOID) {
 	if (!Connected) {
 		return;
 	}
@@ -255,11 +255,11 @@ NOINLINE VOID ServerClient::Disconnect() {
 	closesocket(Socket);
 }
 
-NOINLINE VOID Server::Stop() {
+NOINLINE VOID Server::Stop(VOID) {
 	closesocket(ServerSocket);
 }
 
-NOINLINE VOID Server::RegisterHandler(UINT8 Opcode, FnHandleServerPacket Func, PVOID Ctx, uint64_t MinimumLength) {
+NOINLINE VOID Server::RegisterHandler(UINT8 Opcode, FnHandleServerPacket Func, PVOID Ctx, UINT64 MinimumLength) {
 	ServerPacketHandler Handler;
 	Handler.Ctx = Ctx;
 	Handler.Func = Func;

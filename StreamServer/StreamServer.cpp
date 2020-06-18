@@ -32,7 +32,7 @@ static unsigned int JmpFlagTable[500] = { 0 };
 //
 // Retrieves the size of the loaded image.
 //
-static UINT64 SizeOfImage() {
+static UINT64 SizeOfImage(VOID) {
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
 	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 	return Nt->OptionalHeader.SizeOfImage;
@@ -41,7 +41,7 @@ static UINT64 SizeOfImage() {
 //
 // Retrieves the entry poitn of the loaded image.
 //
-static UINT64 EpOfImage() {
+static UINT64 EpOfImage(VOID) {
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
 	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 	return Nt->OptionalHeader.AddressOfEntryPoint;
@@ -50,7 +50,7 @@ static UINT64 EpOfImage() {
 //
 // Builds the jmp table.
 //
-static VOID BuildJmpTable() {
+static VOID BuildJmpTable(VOID) {
 	JmpFlagTable[ud_mnemonic_code::UD_Ijp] = 0x4u | SET_BIT;
 	JmpFlagTable[ud_mnemonic_code::UD_Ijnp] = 0x4u;
 
@@ -461,7 +461,7 @@ VOID OnNewConnection(ServerClient *Client) {
 //
 // Starts the server.
 //
-BOOLEAN StartServer() {
+BOOLEAN StartServer(VOID) {
 	Server Server;
 	Server.Port = BIND_PORT;
 	Server.OnNewConnection = OnNewConnection;
