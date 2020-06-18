@@ -458,6 +458,14 @@ VOID OnNewConnection(ServerClient *Client) {
 	Client->Send(&Packet);
 }
 
+VOID OnBadPacket(ServerClient *Client, Packet *Packet) {
+	Client->Disconnect();
+}
+
+VOID OnMalformedData(ServerClient *Client) {
+	Client->Disconnect();
+}
+
 //
 // Starts the server.
 //
@@ -465,6 +473,8 @@ BOOLEAN StartServer(VOID) {
 	Server Server;
 	Server.Port = BIND_PORT;
 	Server.OnNewConnection = OnNewConnection;
+	Server.OnBadPacket = OnBadPacket;
+	Server.OnMalformedData = OnMalformedData;
 	Server.RegisterHandler(OP_C2S_INITIALIZED, OnInitializedPacket, NULL, sizeof(PacketC2SInitialized));
 	Server.RegisterHandler(OP_C2S_REQUEST_INSTRUCTION, OnRequestInstructionPacket, NULL, sizeof(PacketC2SRequestInstruction));
 
