@@ -6,20 +6,6 @@
 #include <thread>
 #include <chrono>
 
-NOINLINE VOID Server::HandlePacket(Packet *Incoming, ServerClient *Client) {
-	auto Handler = PacketHandlers[Incoming->Opcode];
-	if (auto Func = Handler.Func) {
-		if (Incoming->BodyLength < Handler.MinimumLength) {
-			if (OnBadPacket) {
-				OnBadPacket(Client, Incoming);
-				return;
-			}
-		}
-
-		Func(Handler.Ctx, this, Client, Incoming);
-	}
-}
-
 //
 // The context for a new thread.
 //
@@ -31,12 +17,26 @@ struct NEW_THREAD_CONTEXT {
 //
 // Handles a new connection
 //
-static VOID HandleConnection(NEW_THREAD_CONTEXT *Context) {
+static NOINLINE VOID HandleConnection(NEW_THREAD_CONTEXT *Context) {
 	auto Server = Context->Server;
 	auto Client = Context->Client;
 	while (Client->Connected) {
 		for (auto i = 0; i < 10000 && Client->AttemptRecv(); i++);
 		Sleep(1);
+	}
+}
+
+NOINLINE VOID Server::HandlePacket(Packet *Incoming, ServerClient *Client) {
+	auto Handler = PacketHandlers[Incoming->Opcode];
+	if (auto Func = Handler.Func) {
+		if (Incoming->BodyLength < Handler.MinimumLength) {
+			if (OnBadPacket) {
+				OnBadPacket(Client, Incoming);
+				return;
+			}
+		}
+
+		Func(Handler.Ctx, this, Client, Incoming);
 	}
 }
 
@@ -58,7 +58,7 @@ NOINLINE BOOLEAN Server::Bind(VOID) {
 
 	auto AddrInfoResult = getaddrinfo(NULL, Port, &Hints, &Result);
 	if (AddrInfoResult != 0) {
-		LOG("getaddrinfo failed with error: %d", AddrInfoResult);
+		LOG("getaddrinfo failed ({Err= " << AddrInfoResult << "})");
 		return FALSE;
 	}
 
@@ -73,7 +73,7 @@ NOINLINE BOOLEAN Server::Bind(VOID) {
 	LOG("Binding");
 	auto BindResult = bind(ServerSocket, Result->ai_addr, (int)Result->ai_addrlen);
 	if (BindResult == SOCKET_ERROR) {
-		LOG("Bind failed with error: %d", WSAGetLastError());
+		LOG("Bind failed with error ({Err= " << WSAGetLastError() << "})");
 		freeaddrinfo(Result);
 		closesocket(ServerSocket);
 		return FALSE;
@@ -84,7 +84,7 @@ NOINLINE BOOLEAN Server::Bind(VOID) {
 
 	LOG("Listening");
 	if (listen(ServerSocket, SOMAXCONN) == SOCKET_ERROR) {
-		printf("Listen failed with error: %ld\n", WSAGetLastError());
+		LOG("Listen failed with error ({Err= " << WSAGetLastError() << "})");
 		closesocket(ServerSocket);
 		return FALSE;
 	}

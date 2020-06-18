@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <udis86.h>
 
 #pragma pack(push, 1)
 //
@@ -26,3 +27,8 @@ struct CpuState {
 	DWORD EFlags;
 };
 #pragma pack(pop)
+
+//
+// Retrieves the address of a register.
+//
+static PVOID GetRegAddr(CpuState *State, ud_type r);

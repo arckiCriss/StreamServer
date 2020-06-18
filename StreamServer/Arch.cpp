@@ -1,0 +1,94 @@
+#include "Arch.h"
+#include "Logging.h"
+
+PVOID GetRegAddr(CpuState *State, ud_type r) {
+	switch (r) {
+	case ud_type::UD_R_AL:
+	case ud_type::UD_R_AH:
+	case ud_type::UD_R_AX:
+	case ud_type::UD_R_EAX:
+	case ud_type::UD_R_RAX:
+		return (PVOID)State->Rax;
+	case ud_type::UD_R_CL:
+	case ud_type::UD_R_CH:
+	case ud_type::UD_R_CX:
+	case ud_type::UD_R_ECX:
+	case ud_type::UD_R_RCX:
+		return (PVOID)State->Rcx;
+	case ud_type::UD_R_DL:
+	case ud_type::UD_R_DH:
+	case ud_type::UD_R_DX:
+	case ud_type::UD_R_EDX:
+	case ud_type::UD_R_RDX:
+		return (PVOID)State->Rdx;
+	case ud_type::UD_R_BL:
+	case ud_type::UD_R_BH:
+	case ud_type::UD_R_BX:
+	case ud_type::UD_R_EBX:
+	case ud_type::UD_R_RBX:
+		return (PVOID)State->Rbx;
+	case ud_type::UD_R_SP:
+	case ud_type::UD_R_ESP:
+	case ud_type::UD_R_RSP:
+		return (PVOID)State->Rsp;
+	case ud_type::UD_R_BP:
+	case ud_type::UD_R_EBP:
+	case ud_type::UD_R_RBP:
+		return (PVOID)State->Rbp;
+	case ud_type::UD_R_SIL:
+	case ud_type::UD_R_SI:
+	case ud_type::UD_R_ESI:
+	case ud_type::UD_R_RSI:
+		return (PVOID)State->Rsi;
+	case ud_type::UD_R_DIL:
+	case ud_type::UD_R_DI:
+	case ud_type::UD_R_EDI:
+	case ud_type::UD_R_RDI:
+		return (PVOID)State->Rdi;
+	case ud_type::UD_R_R8B:
+	case ud_type::UD_R_R8W:
+	case ud_type::UD_R_R8D:
+	case ud_type::UD_R_R8:
+		return (PVOID)State->R8;
+	case ud_type::UD_R_R9B:
+	case ud_type::UD_R_R9W:
+	case ud_type::UD_R_R9D:
+	case ud_type::UD_R_R9:
+		return (PVOID)State->R9;
+	case ud_type::UD_R_R10B:
+	case ud_type::UD_R_R10W:
+	case ud_type::UD_R_R10D:
+	case ud_type::UD_R_R10:
+		return (PVOID)State->R10;
+	case ud_type::UD_R_R11B:
+	case ud_type::UD_R_R11W:
+	case ud_type::UD_R_R11D:
+	case ud_type::UD_R_R11:
+		return (PVOID)State->R11;
+	case ud_type::UD_R_R12B:
+	case ud_type::UD_R_R12W:
+	case ud_type::UD_R_R12D:
+	case ud_type::UD_R_R12:
+		return (PVOID)State->R12;
+	case ud_type::UD_R_R13B:
+	case ud_type::UD_R_R13W:
+	case ud_type::UD_R_R13D:
+	case ud_type::UD_R_R13:
+		return (PVOID)State->R13;
+	case ud_type::UD_R_R14B:
+	case ud_type::UD_R_R14W:
+	case ud_type::UD_R_R14D:
+	case ud_type::UD_R_R14:
+		return (PVOID)State->R14;
+	case ud_type::UD_R_R15B:
+	case ud_type::UD_R_R15W:
+	case ud_type::UD_R_R15D:
+	case ud_type::UD_R_R15:
+		return (PVOID)State->R15;
+	case ud_type::UD_R_RIP:
+		return (PVOID)State->Rip;
+	default:
+		LOG("Unknown type " << r);
+		return NULL;
+	}
+}

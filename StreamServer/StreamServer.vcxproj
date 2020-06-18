@@ -160,11 +160,18 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="Net.h" />
+    <ClInclude Include="Pe.h" />
     <ClInclude Include="Server.h" />
+    <ClInclude Include="SubsystemStreaming.h" />
+    <ClInclude Include="SubsystemSymbols.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Arch.cpp" />
+    <ClCompile Include="Pe.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="SubsystemStreaming.cpp" />
     <ClCompile Include="StreamServer.cpp" />
+    <ClCompile Include="SubsystemSymbols.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
