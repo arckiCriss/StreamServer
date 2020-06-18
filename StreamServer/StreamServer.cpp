@@ -293,12 +293,22 @@ bool IsCode(ServerClient *Client, void *Addr) {
 // Handles an initialized packet.
 //
 static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client, Packet *P) {
+	if (Client->Allocated) {
+		// TODO FIXME disconnect
+		return;
+	}
+
+
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
 	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
 
 	auto Body = (PacketC2SInitialized*)P->Body;
-	LOG("Iniitalized at " << Body->Allocated);
+	if (!Body->Allocated) {
+		// TODO FIXME disconnect
+		return;
+	}
 
+	LOG("Iniitalized at " << Body->Allocated);
 	Client->Allocated = Body->Allocated;
 	Client->Image = malloc(Nt->OptionalHeader.SizeOfImage);
 
@@ -324,6 +334,11 @@ static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client,
 // Handles a request instruction packet.
 //
 static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *Client, Packet *P) {
+	if (!Client->Allocated) {
+		// TODO FIXME disconnect
+		return;
+	}
+
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
 	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
 

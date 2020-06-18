@@ -35,7 +35,7 @@ static void HandleConnection(NEW_THREAD_CONTEXT *Context) {
 	auto Client = Context->Client;
 	while (Client->Connected) {
 		for (auto i = 0; i < 10000 && Client->AttemptRecv(); i++);
-		Sleep(10);
+		Sleep(1);
 	}
 }
 
@@ -220,7 +220,12 @@ __declspec(noinline) void ServerClient::SendFragment(Packet *Packet, uint32_t Se
 	auto End = Ptr + Size;
 	while (Ptr < End) {
 		auto Sent = ::send(Socket, Ptr, End - Ptr, 0);
-		if (Sent < 0) {
+		if (Sent <= 0) {
+			if (WSAGetLastError() != WSAEWOULDBLOCK) {
+				Connected = false;
+				return;
+			}
+
 			continue;
 		}
 
