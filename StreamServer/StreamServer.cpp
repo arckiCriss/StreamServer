@@ -30,6 +30,24 @@ static char *Image;
 static unsigned int JmpFlagTable[500] = { 0 };
 
 //
+// Retrieves the size of the loaded image.
+//
+static uint64_t SizeOfImage() {
+	auto Dos = (PIMAGE_DOS_HEADER)Image;
+	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
+	return Nt->OptionalHeader.SizeOfImage;
+}
+
+//
+// Retrieves the entry poitn of the loaded image.
+//
+static uint64_t EpOfImage() {
+	auto Dos = (PIMAGE_DOS_HEADER)Image;
+	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
+	return Nt->OptionalHeader.AddressOfEntryPoint;
+}
+
+//
 // Builds the jmp table.
 //
 static void BuildJmpTable() {
@@ -260,10 +278,8 @@ static void *GetRegAddr(CpuState *State, ud_type r) {
 // Determines if the provided address is within bounds.
 //
 bool IsWithinBounds(ServerClient *Client, void *Addr) {
-	auto Dos = (PIMAGE_DOS_HEADER)Image;
-	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
 	auto Off = (UINT64)Addr - (UINT64)Client->Allocated;
-	return Off < Nt->OptionalHeader.SizeOfImage;
+	return Off < SizeOfImage();
 }
 
 //
@@ -351,7 +367,7 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 
 	ud_t u;
 	ud_init(&u);
-	ud_set_input_buffer(&u, (uint8_t*)Client->Image + Off, Nt->OptionalHeader.SizeOfImage - Off);
+	ud_set_input_buffer(&u, (uint8_t*)Client->Image + Off, SizeOfImage() - Off);
 	ud_set_mode(&u, 64);
 	auto Length = ud_disassemble(&u);
 	if (Length <= 0 || Length > 0x15) {
@@ -431,12 +447,9 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 void OnNewConnection(ServerClient *Client) {
 	LOG("New connection");
 
-	auto Dos = (PIMAGE_DOS_HEADER)Image;
-	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
-
 	PacketS2CInit Body;
-	Body.Length = Nt->OptionalHeader.SizeOfImage;
-	Body.Off = Nt->OptionalHeader.AddressOfEntryPoint;
+	Body.Length = SizeOfImage();
+	Body.Off = EpOfImage();
 
 	Packet Packet;
 	Packet.Opcode = OP_S2C_INIT;
