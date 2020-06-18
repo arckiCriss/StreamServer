@@ -40,13 +40,13 @@ static void HandleConnection(NEW_THREAD_CONTEXT *Context) {
 	}
 }
 
-NOINLINE bool Server::Init() {
+NOINLINE BOOLEAN Server::Init() {
 	LOG("WSAStartup");
 	WSAStartup(MAKEWORD(2, 2), &WsaData);
-	return true;
+	return TRUE;
 }
 
-NOINLINE bool Server::Bind() {
+NOINLINE BOOLEAN Server::Bind() {
 	struct addrinfo *Result = NULL;
 	struct addrinfo Hints;
 
@@ -59,7 +59,7 @@ NOINLINE bool Server::Bind() {
 	auto AddrInfoResult = getaddrinfo(NULL, Port, &Hints, &Result);
 	if (AddrInfoResult != 0) {
 		LOG("getaddrinfo failed with error: %d", AddrInfoResult);
-		return false;
+		return FALSE;
 	}
 
 
@@ -67,7 +67,7 @@ NOINLINE bool Server::Bind() {
 	ServerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (ServerSocket == INVALID_SOCKET) {
 		LOG("Failed to open socket");
-		return false;
+		return FALSE;
 	}
 
 	LOG("Binding");
@@ -76,7 +76,7 @@ NOINLINE bool Server::Bind() {
 		LOG("Bind failed with error: %d", WSAGetLastError());
 		freeaddrinfo(Result);
 		closesocket(ServerSocket);
-		return false;
+		return FALSE;
 	}
 
 	LOG("Freeing result");
@@ -86,11 +86,11 @@ NOINLINE bool Server::Bind() {
 	if (listen(ServerSocket, SOMAXCONN) == SOCKET_ERROR) {
 		printf("Listen failed with error: %ld\n", WSAGetLastError());
 		closesocket(ServerSocket);
-		return false;
+		return FALSE;
 	}
 
-	Binded = true;
-	return true;
+	Binded = TRUE;
+	return TRUE;
 }
 
 NOINLINE void Server::Accept() {
@@ -126,8 +126,8 @@ NOINLINE void Server::Accept() {
 	}
 }
 
-NOINLINE bool ServerClient::AttemptRecv() {
-	auto Decoded = false;
+NOINLINE BOOLEAN ServerClient::AttemptRecv() {
+	auto Decoded = FALSE;
 	if (Connected) {
 		auto RecvAmt = 0;
 		auto HeaderSize = sizeof(PacketFragment) - 0x200;
@@ -139,16 +139,16 @@ NOINLINE bool ServerClient::AttemptRecv() {
 		}
 
 		if (RecvAmt) {
-			auto Received = recv(Socket, (char*)&CurrentPart + FragmentOff, RecvAmt, 0);
+			auto Received = recv(Socket, (PCHAR)&CurrentPart + FragmentOff, RecvAmt, 0);
 			if (WSAGetLastError() != WSAEWOULDBLOCK && (Received == 0 || Received == -1)) {
-				Connected = false;
-				return false;
+				Connected = FALSE;
+				return FALSE;
 			}
 
 			if (Received > 0) {
 				FragmentOff += Received;
 				RecvAmt -= Received;
-				Decoded = true;
+				Decoded = TRUE;
 			}
 		} else {
 			//
@@ -160,8 +160,8 @@ NOINLINE bool ServerClient::AttemptRecv() {
 				}
 
 				FragmentOff = 0;
-				Decoded = true;
-				return true;
+				Decoded = TRUE;
+				return Decoded;
 			}
 
 			auto &Trace = Traces[CurrentPart.Id];
@@ -177,8 +177,8 @@ NOINLINE bool ServerClient::AttemptRecv() {
 					}
 
 					FragmentOff = 0;
-					Decoded = true;
-					return true;
+					Decoded = TRUE;
+					return Decoded;
 				}
 			}
 
@@ -189,7 +189,7 @@ NOINLINE bool ServerClient::AttemptRecv() {
 			Traces[CurrentPart.Id] = PacketTrace();
 
 			FragmentOff = 0;
-			Decoded = true;
+			Decoded = TRUE;
 		}
 	}
 
@@ -213,17 +213,17 @@ NOINLINE void ServerClient::SendFragment(Packet *Packet, uint32_t SendId, uint32
 	Fragment.Id = SendId;
 	Fragment.Part = PartIdx;
 	Fragment.Opcode = Packet->Opcode;
-	memcpy(Fragment.Body, (char*)Packet->Body + BufBegin, BufLen);
+	memcpy(Fragment.Body, (PCHAR)Packet->Body + BufBegin, BufLen);
 
 	auto SizeNBody = sizeof(Fragment) - PACKET_LEN;
 	auto Size = (int)(SizeNBody + BufLen);
-	auto Ptr = (char*)&Fragment;
+	auto Ptr = (PCHAR)&Fragment;
 	auto End = Ptr + Size;
 	while (Ptr < End) {
 		auto Sent = ::send(Socket, Ptr, End - Ptr, 0);
 		if (Sent <= 0) {
 			if (WSAGetLastError() != WSAEWOULDBLOCK) {
-				Connected = false;
+				Connected = FALSE;
 				return;
 			}
 
@@ -259,7 +259,7 @@ NOINLINE void Server::Stop() {
 	closesocket(ServerSocket);
 }
 
-NOINLINE void Server::RegisterHandler(uint8_t Opcode, FnHandleServerPacket Func, void *Ctx, uint64_t MinimumLength) {
+NOINLINE void Server::RegisterHandler(uint8_t Opcode, FnHandleServerPacket Func, PVOID Ctx, uint64_t MinimumLength) {
 	ServerPacketHandler Handler;
 	Handler.Ctx = Ctx;
 	Handler.Func = Func;

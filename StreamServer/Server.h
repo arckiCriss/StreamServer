@@ -19,15 +19,15 @@ struct Packet {
 	//
 	// The opcode of the packet.
 	//
-	uint8_t Opcode = 0;
+	UINT8 Opcode = 0;
 	//
 	// The body of the packet.
 	//
-	void *Body = NULL;
+	PVOID Body = NULL;
 	//
 	// The length of the body.
 	//
-	uint32_t BodyLength = 0;
+	UINT32 BodyLength = 0;
 
 	//
 	// Nulls the packet body.
@@ -45,31 +45,31 @@ struct PacketFragment {
 	//
 	// The total size of the packet.
 	//
-	uint32_t TotalSize;
+	UINT32 TotalSize;
 	//
 	// The total number of parts in the packet.
 	//
-	uint32_t TotalParts;
+	UINT32 TotalParts;
 	//
 	// The size of this part.
 	//
-	uint16_t PartSize;
+	UINT16 PartSize;
 	//
 	// The index of this part.
 	//
-	uint32_t Part;
+	UINT32 Part;
 	//
 	// The opcode of the packet.
 	//
-	uint8_t Opcode;
+	UINT8 Opcode;
 	//
 	// The id of the packet.
 	//
-	uint16_t Id;
+	UINT16 Id;
 	//
 	// The body of this fragment.
 	//
-	uint8_t Body[PACKET_LEN];
+	UINT8 Body[PACKET_LEN];
 };
 
 //
@@ -87,7 +87,7 @@ struct PacketTrace {
 	//
 	// The total number of parts assembled.
 	//
-	uint32_t PartsAssembled = 0;
+	UINT32 PartsAssembled = 0;
 
 	//
 	// Assemblies a piece of the packet being traced.
@@ -110,7 +110,7 @@ struct PacketTrace {
 	//
 	// @return The id of this packet.
 	//
-	inline uint16_t GetId() {
+	inline UINT16 GetId() {
 		return Root.Id;
 	}
 
@@ -119,31 +119,31 @@ struct PacketTrace {
 	//
 	// @return The opcode of this packet.
 	//
-	inline uint8_t GetOpcode() {
+	inline UINT8 GetOpcode() {
 		return Root.Opcode;
 	}
 
 	//
 	// Verifies the parts of this packet.
 	//
-	inline bool Verify() {
+	inline BOOLEAN Verify() {
 		for (auto i = 0u; i < Root.TotalParts; i++) {
 			if (Fragments[i].PartSize > Root.TotalSize) {
-				return false;
+				return FALSE;
 			}
 
 			for (auto j = 0u; j < Root.TotalParts; j++) {
 				if (Fragments[i].TotalSize != Fragments[j].TotalSize) {
-					return false;
+					return FALSE;
 				}
 
 				if (Fragments[i].TotalParts != Fragments[j].TotalParts) {
-					return false;
+					return FALSE;
 				}
 			}
 		}
 
-		return true;
+		return TRUE;
 	}
 
 	//
@@ -151,9 +151,9 @@ struct PacketTrace {
 	//
 	// @return If this packet is complete.
 	//
-	inline bool IsComplete() {
+	inline BOOLEAN IsComplete() {
 		if (Fragments.size() < Root.TotalParts) {
-			return false;
+			return FALSE;
 		}
 
 		auto Valid = 0u;
@@ -178,12 +178,12 @@ struct PacketTrace {
 	//
 	// The returned packet body must be freed using the 'free' API.
 	//
-	inline bool Combine(Packet *Packet) {
+	inline BOOLEAN Combine(Packet *Packet) {
 		if (!IsComplete()) {
-			return false;
+			return FALSE;
 		}
 
-		auto Buf = (char *)malloc(Root.TotalSize);
+		auto Buf = (PCHAR)malloc(Root.TotalSize);
 		auto Offset = 0;
 		for (auto i = 0u; i < Root.TotalParts; i++) {
 			auto fragment = &Fragments[i];
@@ -192,9 +192,9 @@ struct PacketTrace {
 		}
 
 		Packet->Opcode = GetOpcode();
-		Packet->Body = (void*)Buf;
+		Packet->Body = (PVOID)Buf;
 		Packet->BodyLength = Root.TotalSize;
-		return true;
+		return TRUE;
 	}
 };
 
@@ -202,7 +202,7 @@ struct PacketTrace {
 //
 // A packet handler function.
 //
-typedef void(*FnHandleServerPacket)(void *Ctx, Server *Server, ServerClient *Client, Packet *Packet);
+typedef void(*FnHandleServerPacket)(PVOID Ctx, Server *Server, ServerClient *Client, Packet *Packet);
 
 //
 // A packet handler.
@@ -215,7 +215,7 @@ struct ServerPacketHandler {
 	//
 	// The context to pass to the function.
 	//
-	void *Ctx = NULL;
+	PVOID Ctx = NULL;
 	//
 	// The minimum length of packets coming into this handler.
 	//
@@ -244,7 +244,7 @@ public:
 	//
 	// The server-sided image.
 	//
-	void *Image = NULL;
+	PVOID Image = NULL;
 
 	//
 	// The currently decoding part.
@@ -253,7 +253,7 @@ public:
 	//
 	// The receive fragment offset.
 	//
-	uint64_t FragmentOff = 0;
+	UINT64 FragmentOff = 0;
 	//
 	// A map of packet traces.
 	//
@@ -266,16 +266,16 @@ public:
 	//
 	// The packet send id.
 	//
-	uint16_t SendId = 0;
+	UINT16 SendId = 0;
 	//
 	// The packet recv id.
 	//
-	uint16_t RecvId = 0;
+	UINT16 RecvId = 0;
 
 	//
 	// The allocated address.
 	//
-	void *Allocated = NULL;
+	PVOID Allocated = NULL;
 
 public:
 	//
@@ -287,13 +287,13 @@ public:
 	//
 	// Attempts to receive from this client.
 	//
-	bool AttemptRecv();
+	BOOLEAN AttemptRecv();
 
 public:
 	//
 	// Sends a packet fragment to the host.
 	//
-	void SendFragment(Packet *packet, uint32_t SendId, uint32_t parts, uint32_t part_idx);
+	void SendFragment(Packet *packet, UINT32 SendId, UINT32 parts, UINT32 part_idx);
 	//
 	// Sends a packet to the host.
 	//
@@ -331,7 +331,7 @@ public:
 	//
 	// If we're binded.
 	//
-	bool Binded = false;
+	BOOLEAN Binded = FALSE;
 
 public:
 	//
@@ -341,7 +341,7 @@ public:
 	//
 	// The maximum size of a packet.
 	//
-	uint64_t MaxPacketSize = 0x10000;
+	UINT64 MaxPacketSize = 0x10000;
 	//
 	// New connection event handler.
 	//
@@ -359,7 +359,7 @@ public:
 	//
 	// Registers a packet handler to this server.
 	//
-	void RegisterHandler(uint8_t Opcode, FnHandleServerPacket handler, void *Ctx, uint64_t MinimumLength);
+	void RegisterHandler(UINT8 Opcode, FnHandleServerPacket handler, PVOID Ctx, UINT64 MinimumLength);
 	//
 	// Handles an incoming packet.
 	//
@@ -369,11 +369,11 @@ public:
 	//
 	// Initializes the server.
 	//
-	bool Init();
+	BOOLEAN Init();
 	//
 	// Binds to the server port.
 	//
-	bool Bind();
+	BOOLEAN Bind();
 	//
 	// Accepts new connections.
 	//

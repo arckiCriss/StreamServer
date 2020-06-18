@@ -22,7 +22,7 @@ struct PacketC2SLogin {
 	//
 	// The version of the loader.
 	//
-	uint32_t Version = 0;
+	UINT32 Version = 0;
 };
 
 //
@@ -32,7 +32,7 @@ struct PacketC2SInitialized {
 	//
 	// The base of the allocated memory.
 	//
-	void *Allocated = NULL;
+	PVOID Allocated = NULL;
 };
 
 //
@@ -42,7 +42,7 @@ struct PacketC2SRequestInstruction {
 	//
 	// The address of the requested instruction.
 	//
-	void *Address = NULL;
+	PVOID Address = NULL;
 	//
 	// CPU state.
 	//
@@ -56,11 +56,11 @@ struct PacketS2CInit {
 	//
 	// The length of the image.
 	//
-	uint64_t Length;
+	UINT64 Length;
 	//
 	// The entry point offset.
 	//
-	uint64_t Off;
+	UINT64 Off;
 };
 
 //
@@ -70,14 +70,14 @@ struct PacketS2CWrite {
 	//
 	// The address to write at.
 	//
-	void *Address = NULL;
+	PVOID Address = NULL;
 	//
 	// The length of the data.
 	//
-	uint64_t Length = 0;
+	UINT64 Length = 0;
 	//
 	// The data.
 	//
-	char Data[0x100] = { 0 };
+	CHAR Data[0x100] = { 0 };
 };
 #pragma pack(pop)

@@ -20,7 +20,7 @@ static char DefaultCodeArea[] = {
 //
 // The cheat image.
 //
-static char *Image;
+static PCHAR Image = NULL;
 
 #define SET_BIT (1u << 31)
 
@@ -34,7 +34,7 @@ static unsigned int JmpFlagTable[500] = { 0 };
 //
 static uint64_t SizeOfImage() {
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
-	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
+	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 	return Nt->OptionalHeader.SizeOfImage;
 }
 
@@ -43,7 +43,7 @@ static uint64_t SizeOfImage() {
 //
 static uint64_t EpOfImage() {
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
-	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
+	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 	return Nt->OptionalHeader.AddressOfEntryPoint;
 }
 
@@ -155,15 +155,15 @@ static void PeResolveRelocations(PBYTE Base, PIMAGE_NT_HEADERS Nt, PBYTE NewBase
 //
 // Writes a range of memory from image.
 //
-static void WriteFromImage(ServerClient *Client, void *At, size_t Size) {
+static void WriteFromImage(ServerClient *Client, PVOID At, SIZE_T Size) {
 	auto Rem = Size;
 	auto Off = 0;
 	while (Rem) {
 		auto ToWrite = min(0x100, Rem);
 
 		PacketS2CWrite NB;
-		NB.Address = (char*)Client->Allocated + (uint64_t)At + Off;
-		memcpy(NB.Data, (char*)Client->Image + (uint64_t)At + Off, ToWrite);
+		NB.Address = (PCHAR)Client->Allocated + (UINT64)At + Off;
+		memcpy(NB.Data, (PCHAR)Client->Image + (UINT64)At + Off, ToWrite);
 		NB.Length = ToWrite;
 
 		Packet NP;
@@ -182,92 +182,92 @@ static void WriteFromImage(ServerClient *Client, void *At, size_t Size) {
 //
 // Retrieves the address of a register.
 //
-static void *GetRegAddr(CpuState *State, ud_type r) {
+static PVOID GetRegAddr(CpuState *State, ud_type r) {
 	switch (r) {
 	case ud_type::UD_R_AL:
 	case ud_type::UD_R_AH:
 	case ud_type::UD_R_AX:
 	case ud_type::UD_R_EAX:
 	case ud_type::UD_R_RAX:
-		return (void*)State->Rax;
+		return (PVOID)State->Rax;
 	case ud_type::UD_R_CL:
 	case ud_type::UD_R_CH:
 	case ud_type::UD_R_CX:
 	case ud_type::UD_R_ECX:
 	case ud_type::UD_R_RCX:
-		return (void*)State->Rcx;
+		return (PVOID)State->Rcx;
 	case ud_type::UD_R_DL:
 	case ud_type::UD_R_DH:
 	case ud_type::UD_R_DX:
 	case ud_type::UD_R_EDX:
 	case ud_type::UD_R_RDX:
-		return (void*)State->Rdx;
+		return (PVOID)State->Rdx;
 	case ud_type::UD_R_BL:
 	case ud_type::UD_R_BH:
 	case ud_type::UD_R_BX:
 	case ud_type::UD_R_EBX:
 	case ud_type::UD_R_RBX:
-		return (void*)State->Rbx;
+		return (PVOID)State->Rbx;
 	case ud_type::UD_R_SP:
 	case ud_type::UD_R_ESP:
 	case ud_type::UD_R_RSP:
-		return (void*)State->Rsp;
+		return (PVOID)State->Rsp;
 	case ud_type::UD_R_BP:
 	case ud_type::UD_R_EBP:
 	case ud_type::UD_R_RBP:
-		return (void*)State->Rbp;
+		return (PVOID)State->Rbp;
 	case ud_type::UD_R_SIL:
 	case ud_type::UD_R_SI:
 	case ud_type::UD_R_ESI:
 	case ud_type::UD_R_RSI:
-		return (void*)State->Rsi;
+		return (PVOID)State->Rsi;
 	case ud_type::UD_R_DIL:
 	case ud_type::UD_R_DI:
 	case ud_type::UD_R_EDI:
 	case ud_type::UD_R_RDI:
-		return (void*)State->Rdi;
+		return (PVOID)State->Rdi;
 	case ud_type::UD_R_R8B:
 	case ud_type::UD_R_R8W:
 	case ud_type::UD_R_R8D:
 	case ud_type::UD_R_R8:
-		return (void*)State->R8;
+		return (PVOID)State->R8;
 	case ud_type::UD_R_R9B:
 	case ud_type::UD_R_R9W:
 	case ud_type::UD_R_R9D:
 	case ud_type::UD_R_R9:
-		return (void*)State->R9;
+		return (PVOID)State->R9;
 	case ud_type::UD_R_R10B:
 	case ud_type::UD_R_R10W:
 	case ud_type::UD_R_R10D:
 	case ud_type::UD_R_R10:
-		return (void*)State->R10;
+		return (PVOID)State->R10;
 	case ud_type::UD_R_R11B:
 	case ud_type::UD_R_R11W:
 	case ud_type::UD_R_R11D:
 	case ud_type::UD_R_R11:
-		return (void*)State->R11;
+		return (PVOID)State->R11;
 	case ud_type::UD_R_R12B:
 	case ud_type::UD_R_R12W:
 	case ud_type::UD_R_R12D:
 	case ud_type::UD_R_R12:
-		return (void*)State->R12;
+		return (PVOID)State->R12;
 	case ud_type::UD_R_R13B:
 	case ud_type::UD_R_R13W:
 	case ud_type::UD_R_R13D:
 	case ud_type::UD_R_R13:
-		return (void*)State->R13;
+		return (PVOID)State->R13;
 	case ud_type::UD_R_R14B:
 	case ud_type::UD_R_R14W:
 	case ud_type::UD_R_R14D:
 	case ud_type::UD_R_R14:
-		return (void*)State->R14;
+		return (PVOID)State->R14;
 	case ud_type::UD_R_R15B:
 	case ud_type::UD_R_R15W:
 	case ud_type::UD_R_R15D:
 	case ud_type::UD_R_R15:
-		return (void*)State->R15;
+		return (PVOID)State->R15;
 	case ud_type::UD_R_RIP:
-		return (void*)State->Rip;
+		return (PVOID)State->Rip;
 	default:
 		LOG("Unknown type " << r);
 		return NULL;
@@ -277,7 +277,7 @@ static void *GetRegAddr(CpuState *State, ud_type r) {
 //
 // Determines if the provided address is within bounds.
 //
-bool IsWithinBounds(ServerClient *Client, void *Addr) {
+BOOLEAN IsWithinBounds(ServerClient *Client, PVOID Addr) {
 	auto Off = (UINT64)Addr - (UINT64)Client->Allocated;
 	return Off < SizeOfImage();
 }
@@ -285,9 +285,9 @@ bool IsWithinBounds(ServerClient *Client, void *Addr) {
 //
 // Determines if the provided address is code.
 //
-bool IsCode(ServerClient *Client, void *Addr) {
+BOOLEAN IsCode(ServerClient *Client, PVOID Addr) {
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
-	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
+	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 	auto Section = IMAGE_FIRST_SECTION(Nt);
 	for (auto i = 0; i < Nt->FileHeader.NumberOfSections; ++i, ++Section) {
 		auto IsCode = (Section->Characteristics & (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE));
@@ -295,20 +295,20 @@ bool IsCode(ServerClient *Client, void *Addr) {
 			continue;
 		}
 
-		auto Begin = (void*)((char*)Client->Allocated + Section->VirtualAddress);
-		auto End = (void*)((char*)Client->Allocated + Section->VirtualAddress + Section->SizeOfRawData);
+		auto Begin = (PVOID)((PCHAR)Client->Allocated + Section->VirtualAddress);
+		auto End = (PVOID)((PCHAR)Client->Allocated + Section->VirtualAddress + Section->SizeOfRawData);
 		if (Addr >= Begin && Addr < End) {
-			return true;
+			return TRUE;
 		}
 	}
 
-	return false;
+	return FALSE;
 }
 
 //
 // Handles an initialized packet.
 //
-static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client, Packet *P) {
+static void OnInitializedPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
 	if (Client->Allocated) {
 		Client->Disconnect();
 		return;
@@ -325,7 +325,7 @@ static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client,
 	Client->Image = malloc(SizeOfImage());
 
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
-	auto Nt = (PIMAGE_NT_HEADERS)((char*)Image + Dos->e_lfanew);
+	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 
 	PeMapHeaders((PBYTE)Image, Nt, (PBYTE)Client->Image);
 	PeMapSections((PBYTE)Image, Nt, (PBYTE)Client->Image);
@@ -341,14 +341,14 @@ static void OnInitializedPacket(void *Ctx, Server *Server, ServerClient *Client,
 			continue;
 		}
 
-		WriteFromImage(Client, (void*)Section->VirtualAddress, Section->SizeOfRawData);
+		WriteFromImage(Client, (PVOID)Section->VirtualAddress, Section->SizeOfRawData);
 	}
 }
 
 //
 // Handles a request instruction packet.
 //
-static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *Client, Packet *P) {
+static void OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
 	if (!Client->Allocated) {
 		Client->Disconnect();
 		return;
@@ -389,14 +389,14 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 			uint32_t Offset;
 			if (BranchTaken) {
 				// jmp directly there
-				memcpy(&Offset, (char*)Client->Image + Off + Length - 4, 4);
+				memcpy(&Offset, (PCHAR)Client->Image + Off + Length - 4, 4);
 				Offset += (Length - 5);
 			} else {
 				// jmp anyways fuck them
 				Offset = (Length - 5);
 			}
 
-			auto Opcodes = (unsigned char*)malloc(Length);
+			auto Opcodes = (PUCHAR)malloc(Length);
 			Opcodes[0] = OP_JMP_IMM32;
 			memcpy(&Opcodes[1], &Offset, 4);
 
@@ -426,7 +426,7 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 	if (!Injected) {
 		PacketS2CWrite NB;
 		NB.Address = Body->Address;
-		memcpy(NB.Data, (char*)Client->Image + Off, Length);
+		memcpy(NB.Data, (PCHAR)Client->Image + Off, Length);
 		NB.Length = Length;
 
 		Packet NP;
@@ -498,7 +498,7 @@ BOOLEAN InitImage(const std::string &Path) {
 	std::basic_ifstream<BYTE> File(WholePath.c_str(), std::ios::binary);
 	auto Bytes = std::vector<BYTE>((std::istreambuf_iterator<BYTE>(File)), std::istreambuf_iterator<BYTE>());
 
-	Image = (char*)malloc(Bytes.size());
+	Image = (PCHAR)malloc(Bytes.size());
 	memcpy(Image, Bytes.data(), Bytes.size());
 	return TRUE;
 }
