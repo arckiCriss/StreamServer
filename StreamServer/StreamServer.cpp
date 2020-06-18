@@ -2,6 +2,7 @@
 
 #include "Net.h"
 #include "Logging.h"
+#include "Config.h"
 
 #include <udis86.h>
 #include <Windows.h>
@@ -439,6 +440,7 @@ void OnNewConnection(ServerClient *Client) {
 //
 BOOLEAN StartServer() {
 	Server Server;
+	Server.Port = BIND_PORT;
 	Server.OnNewConnection = OnNewConnection;
 	Server.RegisterHandler(OP_C2S_INITIALIZED, OnInitializedPacket, NULL, sizeof(PacketC2SInitialized));
 	Server.RegisterHandler(OP_C2S_REQUEST_INSTRUCTION, OnRequestInstructionPacket, NULL, sizeof(PacketC2SRequestInstruction));

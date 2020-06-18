@@ -329,19 +329,22 @@ private:
 	// The socket connection for the binding.
 	//
 	SOCKET ServerSocket = INVALID_SOCKET;
-	
-	//
-	// A map of packet handlers.
-	//
-	ServerPacketHandler PacketHandlers[0xFF] = { };
-	
+
 public:
+	//
+	// The port to bind to.
+	//
+	PCSTR Port = "8263";
 	//
 	// If we're binded.
 	//
 	bool Binded = false;
 
 public:
+	//
+	// A map of packet handlers.
+	//
+	ServerPacketHandler PacketHandlers[0xFF] = { };
 	//
 	// The maximum size of a packet.
 	//
@@ -361,6 +364,10 @@ public:
 
 public:
 	//
+	// Registers a packet handler to this server.
+	//
+	void RegisterHandler(uint8_t Opcode, FnHandleServerPacket handler, void *Ctx, uint64_t MinimumLength);
+	//
 	// Handles an incoming packet.
 	//
 	void HandlePacket(Packet *incoming, ServerClient *Client);
@@ -378,15 +385,10 @@ public:
 	// Accepts new connections.
 	//
 	void Accept();
-
 	//
 	// Stops the server.
 	//
 	void Stop();
-	//
-	// Registers a packet handler to this server.
-	//
-	void RegisterHandler(uint8_t Opcode, FnHandleServerPacket handler, void *Ctx, uint64_t MinimumLength);
 };
 #pragma pack(push, 1)
 

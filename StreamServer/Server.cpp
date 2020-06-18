@@ -57,7 +57,7 @@ __declspec(noinline) bool Server::Bind() {
 	Hints.ai_protocol = IPPROTO_TCP;
 	Hints.ai_flags = AI_PASSIVE;
 
-	auto AddrInfoResult = getaddrinfo(NULL, "8263", &Hints, &Result);
+	auto AddrInfoResult = getaddrinfo(NULL, Port, &Hints, &Result);
 	if (AddrInfoResult != 0) {
 		LOG("getaddrinfo failed with error: %d", AddrInfoResult);
 		return false;

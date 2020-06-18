@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Arch.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="Net.h" />
     <ClInclude Include="pch.h" />
