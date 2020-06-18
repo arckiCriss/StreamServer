@@ -2,7 +2,7 @@
 A binary stream server. This server streams a PE file in instruction by instruction, while mutating the result so that the 
 original code is not recoverable.
 
-![](https://i.imgur.com/h72lzH7.gifv)
+![G](https://i.imgur.com/h72lzH7.gif)
 
 ## Limitations
 * Code that reads itself is unstable, as such, some packers (VMP virtualization) are unstable [1]  
