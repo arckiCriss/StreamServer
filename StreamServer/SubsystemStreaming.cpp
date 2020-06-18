@@ -119,7 +119,7 @@ static BOOLEAN PeResolveImports(ServerClient *Client) {
 //
 // Determines if the provided address is within bounds.
 //
-BOOLEAN IsWithinBounds(ServerClient *Client, PVOID Addr) {
+static BOOLEAN IsWithinBounds(ServerClient *Client, PVOID Addr) {
 	auto Off = (UINT64)Addr - (UINT64)Client->Allocated;
 	return Off < SizeOfImage();
 }
@@ -127,7 +127,7 @@ BOOLEAN IsWithinBounds(ServerClient *Client, PVOID Addr) {
 //
 // Determines if the provided address is code.
 //
-BOOLEAN IsCode(ServerClient *Client, PVOID Addr) {
+static BOOLEAN IsCode(ServerClient *Client, PVOID Addr) {
 	auto Dos = (PIMAGE_DOS_HEADER)Image;
 	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Image + Dos->e_lfanew);
 	auto Section = IMAGE_FIRST_SECTION(Nt);
@@ -205,7 +205,7 @@ static VOID WriteBps(ServerClient *Client, PVOID At, SIZE_T Size) {
 }
 
 
-VOID SubsystemStreamingOnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
+static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
 	if (!Client->Allocated) {
 		Client->Disconnect();
 		return;
@@ -365,7 +365,7 @@ VOID SubsystemStreamingOnNewConnection(ServerClient *Client) {
 }
 
 VOID SubsystemStreamingInitNet(Server *Server) {
-	Server->RegisterHandler(OP_C2S_REQUEST_INSTRUCTION, SubsystemStreamingOnRequestInstructionPacket, NULL, sizeof(PacketC2SRequestInstruction));
+	Server->RegisterHandler(OP_C2S_REQUEST_INSTRUCTION, OnRequestInstructionPacket, NULL, sizeof(PacketC2SRequestInstruction));
 }
 
 BOOLEAN SubsystemStreamingInit(CONST PCHAR ImageName) {
