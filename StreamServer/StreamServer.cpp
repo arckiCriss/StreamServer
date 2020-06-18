@@ -371,7 +371,9 @@ static void OnRequestInstructionPacket(void *Ctx, Server *Server, ServerClient *
 		return;
 	}
 
-
+	//
+	// If we injected other instructions in place of the original one..
+	//
 	auto Injected = FALSE;
 	if (u.operand[0].type == ud_type::UD_OP_JIMM) {
 		if (JmpFlagTable[u.mnemonic]) {
