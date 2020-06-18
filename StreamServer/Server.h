@@ -32,7 +32,7 @@ struct Packet {
 	//
 	// Nulls the packet body.
 	//
-	inline void Null() {
+	inline VOID Null() {
 		Body = NULL;
 		BodyLength = 0;
 	}
@@ -92,7 +92,7 @@ struct PacketTrace {
 	//
 	// Assemblies a piece of the packet being traced.
 	//
-	inline void Assemble(PacketFragment Fragment) {
+	inline VOID Assemble(PacketFragment Fragment) {
 		if (Fragment.TotalParts >= Fragments.size()) {
 			Fragments.resize(Fragment.TotalParts);
 		}
@@ -202,7 +202,7 @@ struct PacketTrace {
 //
 // A packet handler function.
 //
-typedef void(*FnHandleServerPacket)(PVOID Ctx, Server *Server, ServerClient *Client, Packet *Packet);
+typedef VOID(*FnHandleServerPacket)(PVOID Ctx, Server *Server, ServerClient *Client, Packet *Packet);
 
 //
 // A packet handler.
@@ -261,7 +261,7 @@ public:
 	//
 	// Sent pieces of code.
 	//
-	std::map<void*, bool> Sent;
+	std::map<VOID*, bool> Sent;
 
 	//
 	// The packet send id.
@@ -281,7 +281,7 @@ public:
 	//
 	// Handles a client tick.
 	//
-	void Tick();
+	VOID Tick();
 
 public:
 	//
@@ -293,21 +293,21 @@ public:
 	//
 	// Sends a packet fragment to the host.
 	//
-	void SendFragment(Packet *packet, UINT32 SendId, UINT32 parts, UINT32 part_idx);
+	VOID SendFragment(Packet *packet, UINT32 SendId, UINT32 parts, UINT32 part_idx);
 	//
 	// Sends a packet to the host.
 	//
-	void Send(Packet *Packet);
+	VOID Send(Packet *Packet);
 
 	//
 	// Disconnects this client from the server.
 	//
-	void Disconnect();
+	VOID Disconnect();
 };
 
-typedef void(*FnOnNewConnection)(ServerClient *Client);
-typedef void(*FnOnBadPacket)(ServerClient *Client, Packet *Packet);
-typedef void(*FnOnMalformedData)(ServerClient *Client);
+typedef VOID(*FnOnNewConnection)(ServerClient *Client);
+typedef VOID(*FnOnBadPacket)(ServerClient *Client, Packet *Packet);
+typedef VOID(*FnOnMalformedData)(ServerClient *Client);
 
 //
 // A server.
@@ -359,11 +359,11 @@ public:
 	//
 	// Registers a packet handler to this server.
 	//
-	void RegisterHandler(UINT8 Opcode, FnHandleServerPacket handler, PVOID Ctx, UINT64 MinimumLength);
+	VOID RegisterHandler(UINT8 Opcode, FnHandleServerPacket handler, PVOID Ctx, UINT64 MinimumLength);
 	//
 	// Handles an incoming packet.
 	//
-	void HandlePacket(Packet *incoming, ServerClient *Client);
+	VOID HandlePacket(Packet *incoming, ServerClient *Client);
 
 public:
 	//
@@ -377,10 +377,10 @@ public:
 	//
 	// Accepts new connections.
 	//
-	void Accept();
+	VOID Accept();
 	//
 	// Stops the server.
 	//
-	void Stop();
+	VOID Stop();
 };
 #pragma pack(pop)

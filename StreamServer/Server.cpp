@@ -6,7 +6,7 @@
 #include <thread>
 #include <chrono>
 
-NOINLINE void Server::HandlePacket(Packet *Incoming, ServerClient *Client) {
+NOINLINE VOID Server::HandlePacket(Packet *Incoming, ServerClient *Client) {
 	auto Handler = PacketHandlers[Incoming->Opcode];
 	if (auto Func = Handler.Func) {
 		if (Incoming->BodyLength < Handler.MinimumLength) {
@@ -31,7 +31,7 @@ struct NEW_THREAD_CONTEXT {
 //
 // Handles a new connection
 //
-static void HandleConnection(NEW_THREAD_CONTEXT *Context) {
+static VOID HandleConnection(NEW_THREAD_CONTEXT *Context) {
 	auto Server = Context->Server;
 	auto Client = Context->Client;
 	while (Client->Connected) {
@@ -93,7 +93,7 @@ NOINLINE BOOLEAN Server::Bind() {
 	return TRUE;
 }
 
-NOINLINE void Server::Accept() {
+NOINLINE VOID Server::Accept() {
 	while (Binded) {
 		auto Future = std::async(std::launch::async, [&]() -> SOCKET {
 			return accept(ServerSocket, (sockaddr*)NULL, (int*)NULL);
@@ -196,13 +196,13 @@ NOINLINE BOOLEAN ServerClient::AttemptRecv() {
 	return Decoded;
 }
 
-NOINLINE void ServerClient::Tick() {
+NOINLINE VOID ServerClient::Tick() {
 	if (Connected) {
 		for (auto i = 0; i < 10000 && AttemptRecv(); i++);
 	}
 }
 
-NOINLINE void ServerClient::SendFragment(Packet *Packet, UINT32 SendId, UINT32 Parts, UINT32 PartIdx) {
+NOINLINE VOID ServerClient::SendFragment(Packet *Packet, UINT32 SendId, UINT32 Parts, UINT32 PartIdx) {
 	auto BufBegin = PartIdx * PACKET_LEN;
 	auto BufLen = min((UINT32)PACKET_LEN, Packet->BodyLength - BufBegin);
 
@@ -234,7 +234,7 @@ NOINLINE void ServerClient::SendFragment(Packet *Packet, UINT32 SendId, UINT32 P
 	}
 }
 
-NOINLINE void ServerClient::Send(Packet *packet) {
+NOINLINE VOID ServerClient::Send(Packet *packet) {
 	auto count = packet->BodyLength / PACKET_LEN;
 	if (packet->BodyLength % PACKET_LEN) {
 		count += 1;
@@ -246,7 +246,7 @@ NOINLINE void ServerClient::Send(Packet *packet) {
 	}
 }
 
-NOINLINE void ServerClient::Disconnect() {
+NOINLINE VOID ServerClient::Disconnect() {
 	if (!Connected) {
 		return;
 	}
@@ -255,11 +255,11 @@ NOINLINE void ServerClient::Disconnect() {
 	closesocket(Socket);
 }
 
-NOINLINE void Server::Stop() {
+NOINLINE VOID Server::Stop() {
 	closesocket(ServerSocket);
 }
 
-NOINLINE void Server::RegisterHandler(UINT8 Opcode, FnHandleServerPacket Func, PVOID Ctx, uint64_t MinimumLength) {
+NOINLINE VOID Server::RegisterHandler(UINT8 Opcode, FnHandleServerPacket Func, PVOID Ctx, uint64_t MinimumLength) {
 	ServerPacketHandler Handler;
 	Handler.Ctx = Ctx;
 	Handler.Func = Func;

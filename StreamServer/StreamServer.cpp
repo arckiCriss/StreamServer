@@ -50,7 +50,7 @@ static UINT64 EpOfImage() {
 //
 // Builds the jmp table.
 //
-static void BuildJmpTable() {
+static VOID BuildJmpTable() {
 	JmpFlagTable[ud_mnemonic_code::UD_Ijp] = 0x4u | SET_BIT;
 	JmpFlagTable[ud_mnemonic_code::UD_Ijnp] = 0x4u;
 
@@ -119,7 +119,7 @@ static BOOLEAN PeMapSections(PBYTE Base, PIMAGE_NT_HEADERS Nt, PBYTE Mapped) {
 //
 // Resolves relocations.
 //
-static void PeResolveRelocations(PBYTE Base, PIMAGE_NT_HEADERS Nt, PBYTE NewBase, PBYTE Mapped) {
+static VOID PeResolveRelocations(PBYTE Base, PIMAGE_NT_HEADERS Nt, PBYTE NewBase, PBYTE Mapped) {
 	auto &BaseRelocDir = Nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC];
 	if (!BaseRelocDir.VirtualAddress) {
 		return;
@@ -155,7 +155,7 @@ static void PeResolveRelocations(PBYTE Base, PIMAGE_NT_HEADERS Nt, PBYTE NewBase
 //
 // Writes a range of memory from image.
 //
-static void WriteFromImage(ServerClient *Client, PVOID At, SIZE_T Size) {
+static VOID WriteFromImage(ServerClient *Client, PVOID At, SIZE_T Size) {
 	auto Rem = Size;
 	auto Off = 0;
 	while (Rem) {
@@ -308,7 +308,7 @@ BOOLEAN IsCode(ServerClient *Client, PVOID Addr) {
 //
 // Handles an initialized packet.
 //
-static void OnInitializedPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
+static VOID OnInitializedPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
 	if (Client->Allocated) {
 		Client->Disconnect();
 		return;
@@ -348,7 +348,7 @@ static void OnInitializedPacket(PVOID Ctx, Server *Server, ServerClient *Client,
 //
 // Handles a request instruction packet.
 //
-static void OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
+static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
 	if (!Client->Allocated) {
 		Client->Disconnect();
 		return;
@@ -443,7 +443,7 @@ static void OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 //
 // Called when a new connection happens.
 //
-void OnNewConnection(ServerClient *Client) {
+VOID OnNewConnection(ServerClient *Client) {
 	LOG("New connection");
 
 	PacketS2CInit Body;
