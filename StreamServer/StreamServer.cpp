@@ -397,15 +397,9 @@ static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 				Offset = (Length - 5);
 			}
 
-			auto Opcodes = (PUCHAR)malloc(Length);
+			auto Opcodes = (PUCHAR)malloc(5);
 			Opcodes[0] = OP_JMP_IMM32;
 			memcpy(&Opcodes[1], &Offset, 4);
-
-			// nop remaining bytes
-			auto Remaining = Length - 5;
-			for (auto i = 0; i < Remaining; i++) {
-				Opcodes[i + 5] = OP_NOP;
-			}
 
 			PacketS2CWrite NB;
 			NB.Address = Body->Address;
