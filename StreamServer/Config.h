@@ -20,4 +20,4 @@
 //
 // If defined, all conditional branches will be replaced with direct ones.
 //
-#define UNROLL_CONTROL_FLOW
+//#define UNROLL_CONTROL_FLOW

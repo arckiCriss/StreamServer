@@ -223,6 +223,16 @@ struct ServerPacketHandler {
 };
 
 //
+// A symbol request.
+//
+struct SymbolRequest {
+	//
+	// The address to fill in.
+	//
+	PVOID FillAddress;
+};
+
+//
 // A client connected to the server.
 //
 class ServerClient {
@@ -245,6 +255,14 @@ public:
 	// The server-sided image.
 	//
 	PVOID Image = NULL;
+	//
+	// All symbol requests.
+	//
+	SymbolRequest SymbolRequests[1000];
+	//
+	// The current symbol request id.
+	//
+	UINT64 SymbolRequestId = 0;
 
 	//
 	// The currently decoding part.

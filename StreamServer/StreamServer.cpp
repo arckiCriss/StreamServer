@@ -153,6 +153,56 @@ static VOID PeResolveRelocations(PBYTE Base, PIMAGE_NT_HEADERS Nt, PBYTE NewBase
 }
 
 //
+// Resolves imports.
+//
+BOOLEAN PeResolveImports(ServerClient *Client) {
+	auto Base = (PBYTE)Client->Image;
+	auto Dos = (PIMAGE_DOS_HEADER)Base;
+	auto Nt = (PIMAGE_NT_HEADERS)((PCHAR)Base + Dos->e_lfanew);
+
+	auto Rva = Nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
+	if (!Rva) {
+		return TRUE;
+	}
+
+	auto ImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)(Base + Rva);
+	if (!ImportDescriptor) {
+		return TRUE;
+	}
+
+	for (; ImportDescriptor->FirstThunk; ++ImportDescriptor) {
+		auto ModuleName = (PCHAR)(Base + ImportDescriptor->Name);
+		if (!ModuleName) {
+			continue;
+		}
+
+		for (auto Thunk = (PIMAGE_THUNK_DATA)(Base + ImportDescriptor->FirstThunk); Thunk->u1.AddressOfData; ++Thunk) {
+			auto ImportByName = (PIMAGE_IMPORT_BY_NAME)(Base + Thunk->u1.AddressOfData);
+			auto Off = (UINT64)&Thunk->u1.Function - (UINT64)Base;
+			auto NewAddr = (UINT64)Client->Allocated + Off;
+
+			auto Id = Client->SymbolRequestId++;
+			auto &Request = Client->SymbolRequests[Id];
+			Request.FillAddress = (PVOID)NewAddr;
+
+			PacketS2CRequestSymbolAddress NB;
+			NB.RequestId = Id;
+			strcpy_s(NB.ModuleName, ModuleName);
+			strcpy_s(NB.SymbolName, ImportByName->Name);
+
+			Packet NP;
+			NP.Opcode = OP_S2C_REQUEST_SYMBOL_ADDR;
+			NP.Body = &NB;
+			NP.BodyLength = sizeof(NB);
+
+			Client->Send(&NP);
+		}
+	}
+
+	return TRUE;
+}
+
+//
 // Writes a range of memory from image.
 //
 static VOID WriteFromImage(ServerClient *Client, PVOID At, SIZE_T Size) {
@@ -178,6 +228,35 @@ static VOID WriteFromImage(ServerClient *Client, PVOID At, SIZE_T Size) {
 	}
 }
 
+//
+// Writes breakpoints to the provided range.
+//
+static VOID WriteBps(ServerClient *Client, PVOID At, SIZE_T Size) {
+	auto Rem = Size;
+	auto Off = 0;
+
+	UCHAR Ccs[0x100];
+	memset(Ccs, 0xcc, sizeof(Ccs));
+
+	while (Rem) {
+		auto ToWrite = min(0x100, Rem);
+
+		PacketS2CWrite NB;
+		NB.Address = (PCHAR)Client->Allocated + (UINT64)At + Off;
+		memcpy(NB.Data, Ccs, ToWrite);
+		NB.Length = ToWrite;
+
+		Packet NP;
+		NP.Opcode = OP_S2C_WRITE;
+		NP.Body = &NB;
+		NP.BodyLength = sizeof(NB);
+
+		Client->Send(&NP);
+
+		Rem -= ToWrite;
+		Off += ToWrite;
+	}
+}
 
 //
 // Retrieves the address of a register.
@@ -330,6 +409,7 @@ static VOID OnInitializedPacket(PVOID Ctx, Server *Server, ServerClient *Client,
 	PeMapHeaders((PBYTE)Image, Nt, (PBYTE)Client->Image);
 	PeMapSections((PBYTE)Image, Nt, (PBYTE)Client->Image);
 	PeResolveRelocations((PBYTE)Image, Nt, (PBYTE)Client->Allocated, (PBYTE)Client->Image);
+	PeResolveImports(Client);
 
 	auto Section = IMAGE_FIRST_SECTION(Nt);
 	for (auto i = 0; i < Nt->FileHeader.NumberOfSections; ++i, ++Section) {
@@ -338,11 +418,20 @@ static VOID OnInitializedPacket(PVOID Ctx, Server *Server, ServerClient *Client,
 		//
 		auto IsCode = (Section->Characteristics & (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE));
 		if (IsCode) {
-			continue;
+			WriteBps(Client, (PVOID)Section->VirtualAddress, Section->SizeOfRawData);
+		} else {
+			WriteFromImage(Client, (PVOID)Section->VirtualAddress, Section->SizeOfRawData);
 		}
-
-		WriteFromImage(Client, (PVOID)Section->VirtualAddress, Section->SizeOfRawData);
 	}
+
+	PacketS2CRunCode NB;
+
+	Packet NP;
+	NP.Opcode = OP_S2C_RUN_CODE;
+	NP.Body = &NB;
+	NP.BodyLength = sizeof(NB);
+
+	Client->Send(&NP);
 }
 
 //
@@ -370,6 +459,8 @@ static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 		LOG("Invalid disassembly length...");
 		return;
 	}
+
+	LOG("Requesting " << Body->Address);
 
 	//
 	// If we injected other instructions in place of the original one..
@@ -433,9 +524,29 @@ static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 }
 
 //
+// Called when a symbol address request has been fulfilled by a client.
+//
+static VOID OnFulfillRequestSymbolAddressPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
+	auto Body = (PacketC2SFulfillRequestSymbolAddress*)P->Body;
+	auto &Request = Client->SymbolRequests[Body->RequestId];
+
+	PacketS2CWrite NB;
+	NB.Address = Request.FillAddress;
+	memcpy(NB.Data, &Body->Address, sizeof(Body->Address));
+	NB.Length = sizeof(Body->Address);
+
+	Packet NP;
+	NP.Opcode = OP_S2C_WRITE;
+	NP.Body = &NB;
+	NP.BodyLength = sizeof(NB);
+
+	Client->Send(&NP);
+}
+
+//
 // Called when a new connection happens.
 //
-VOID OnNewConnection(ServerClient *Client) {
+static VOID OnNewConnection(ServerClient *Client) {
 	LOG("New connection");
 
 	PacketS2CInit Body;
@@ -450,11 +561,17 @@ VOID OnNewConnection(ServerClient *Client) {
 	Client->Send(&Packet);
 }
 
-VOID OnBadPacket(ServerClient *Client, Packet *Packet) {
+//
+// Called when a user has sent a bad packet.
+//
+static VOID OnBadPacket(ServerClient *Client, Packet *Packet) {
 	Client->Disconnect();
 }
 
-VOID OnMalformedData(ServerClient *Client) {
+//
+// Called when the user has sent malformed data to the server.
+//
+static VOID OnMalformedData(ServerClient *Client) {
 	Client->Disconnect();
 }
 
@@ -469,6 +586,7 @@ BOOLEAN StartServer(VOID) {
 	Server.OnMalformedData = OnMalformedData;
 	Server.RegisterHandler(OP_C2S_INITIALIZED, OnInitializedPacket, NULL, sizeof(PacketC2SInitialized));
 	Server.RegisterHandler(OP_C2S_REQUEST_INSTRUCTION, OnRequestInstructionPacket, NULL, sizeof(PacketC2SRequestInstruction));
+	Server.RegisterHandler(OP_C2S_FULFILL_REQUEST_SYMBOL_ADDR, OnFulfillRequestSymbolAddressPacket, NULL, sizeof(PacketC2SFulfillRequestSymbolAddress));
 
 	LOG("Initializing");
 	if (!Server.Init()) {

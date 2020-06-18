@@ -10,9 +10,12 @@
 #define OP_C2S_LOGIN 1
 #define OP_C2S_INITIALIZED 2
 #define OP_C2S_REQUEST_INSTRUCTION 3
+#define OP_C2S_FULFILL_REQUEST_SYMBOL_ADDR 4
 
 #define OP_S2C_INIT 1
 #define OP_S2C_WRITE 2
+#define OP_S2C_REQUEST_SYMBOL_ADDR 3
+#define OP_S2C_RUN_CODE 4
 
 #pragma pack(push, 1)
 //
@@ -50,6 +53,20 @@ struct PacketC2SRequestInstruction {
 };
 
 //
+// A fulfillment packet for a symbol address request.
+//
+struct PacketC2SFulfillRequestSymbolAddress {
+	//
+	// The unique (for this session) id of the request being fulfilled.
+	//
+	UINT64 RequestId;
+	//
+	// The address of the symbol.
+	//
+	PVOID Address;
+};
+
+//
 // An init packet.
 //
 struct PacketS2CInit {
@@ -79,5 +96,30 @@ struct PacketS2CWrite {
 	// The data.
 	//
 	CHAR Data[0x100] = { 0 };
+};
+
+//
+// A request module address packet.
+//
+struct PacketS2CRequestSymbolAddress {
+	//
+	// The unique (for this session) id of the request being made.
+	//
+	UINT64 RequestId;
+	//
+	// The name of the module containing the symbol.
+	//
+	CHAR ModuleName[MAX_PATH];
+	//
+	// The name of the symbol itself.
+	//
+	CHAR SymbolName[MAX_PATH];
+};
+
+//
+// A request for running the code.
+//
+struct PacketS2CRunCode {
+	char Dummy[1] = { 0 };
 };
 #pragma pack(pop)
