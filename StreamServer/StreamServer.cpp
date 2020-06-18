@@ -440,8 +440,8 @@ void OnNewConnection(ServerClient *Client) {
 BOOLEAN StartServer() {
 	Server Server;
 	Server.OnNewConnection = OnNewConnection;
-	Server.RegisterHandler(OP_C2S_INITIALIZED, OnInitializedPacket, NULL);
-	Server.RegisterHandler(OP_C2S_REQUEST_INSTRUCTION, OnRequestInstructionPacket, NULL);
+	Server.RegisterHandler(OP_C2S_INITIALIZED, OnInitializedPacket, NULL, sizeof(PacketC2SInitialized));
+	Server.RegisterHandler(OP_C2S_REQUEST_INSTRUCTION, OnRequestInstructionPacket, NULL, sizeof(PacketC2SRequestInstruction));
 
 	LOG("Initializing");
 	if (!Server.Init()) {

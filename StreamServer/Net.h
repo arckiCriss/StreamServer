@@ -205,6 +205,10 @@ struct ServerPacketHandler {
 	// The context to pass to the function.
 	//
 	void *Ctx = NULL;
+	//
+	// The minimum length of packets coming into this handler.
+	//
+	uint64_t MinimumLength;
 };
 
 //
@@ -286,6 +290,7 @@ public:
 };
 
 typedef void(*FnOnNewConnection)(ServerClient *Client);
+typedef void(*FnOnBadPacket)(ServerClient *Client, Packet *Packet);
 
 //
 // A server.
@@ -317,6 +322,10 @@ public:
 	// New connection event handler.
 	//
 	FnOnNewConnection OnNewConnection = NULL;
+	//
+	// Bad packet event handler.
+	//
+	FnOnBadPacket OnBadPacket = NULL;
 
 public:
 	//
@@ -345,7 +354,7 @@ public:
 	//
 	// Registers a packet handler to this server.
 	//
-	void RegisterHandler(uint8_t Opcode, FnHandleServerPacket handler, void *Ctx);
+	void RegisterHandler(uint8_t Opcode, FnHandleServerPacket handler, void *Ctx, uint64_t MinimumLength);
 };
 #pragma pack(push, 1)
 

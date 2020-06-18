@@ -10,6 +10,13 @@
 __declspec(noinline) void Server::HandlePacket(Packet *Incoming, ServerClient *Client) {
 	auto Handler = PacketHandlers[Incoming->Opcode];
 	if (auto Func = Handler.Func) {
+		if (Incoming->BodyLength < Handler.MinimumLength) {
+			if (OnBadPacket) {
+				OnBadPacket(Client, Incoming);
+				return;
+			}
+		}
+
 		Func(Handler.Ctx, this, Client, Incoming);
 	}
 }
@@ -213,10 +220,11 @@ __declspec(noinline) void Server::Stop() {
 	closesocket(ServerSocket);
 }
 
-__declspec(noinline) void Server::RegisterHandler(uint8_t Opcode, FnHandleServerPacket Func, void *Ctx) {
+__declspec(noinline) void Server::RegisterHandler(uint8_t Opcode, FnHandleServerPacket Func, void *Ctx, uint64_t MinimumLength) {
 	ServerPacketHandler Handler;
 	Handler.Ctx = Ctx;
 	Handler.Func = Func;
+	Handler.MinimumLength = MinimumLength;
 
 	PacketHandlers[Opcode] = Handler;
 }
