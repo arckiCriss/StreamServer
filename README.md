@@ -3,8 +3,8 @@ A binary stream server. This server streams a PE file in instruction by instruct
 original code is not recoverable.
 
 ## Limitations
-* Code that reads itself is unstable, as such, some packers (VMP virtualization) are unstable. [1]  
-* Imports are not currently working (use function pointers, PEB, etc.)  
+* Code that reads itself is unstable, as such, some packers (VMP virtualization) are unstable [1]  
+* Imports are not currently working, but are planned (use function pointers, PEB, etc. until then)  
 * SEH is not tested  
   
 
