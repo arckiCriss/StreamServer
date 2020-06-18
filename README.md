@@ -11,6 +11,14 @@ original code is not recoverable.
 [1] It's possible to detect where the client is reading memory at, and load that memory in, so that such code may work. I may 
 add this to the repository at some point if it is stable.
 
+## Planned
+This is a short list of things I plan to do myself over the following months.  
+
+1) Full IAT support
+2) Support for relocating code so that it may be executed in different regions randomly
+3) Outputting mutated code, possibly using a JIT compiler of some sort
+4) Unit tests
+
 ## Building
 1) Build libudis86
 2) Place libdus86 headers & libraries in appropriate folders
