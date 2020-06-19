@@ -47,6 +47,10 @@ struct RsaBlock {
 	//
 	UCHAR RecvIv[CryptoPP::AES::BLOCKSIZE];
 };
+//
+// Verify the size fits in RSA block.
+//
+static_assert(sizeof(RsaBlock) < (2048 / 8), "Invalid size");
 
 //
 // A login packet.
