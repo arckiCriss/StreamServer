@@ -6,6 +6,9 @@
 #include "SubsystemStreaming.h"
 #include "SubsystemSymbols.h"
 
+#include "Rsa.h"
+#include "Aes.h"
+
 #include <udis86.h>
 #include <Windows.h>
 #include <winnt.h>
@@ -99,11 +102,66 @@ static BOOLEAN BootMongo() {
 	return TRUE;
 }
 
+//
+// Tests RSA.
+//
+static VOID TestRsa() {
+	PVOID Encrypted = NULL;
+	SIZE_T EncryptedLength = 0;
+
+	PVOID Decrypted = NULL;
+	SIZE_T DecryptedLength = 0;
+
+	CryptoPP::Integer N(RSA_N);
+	CryptoPP::Integer E(RSA_E);
+	CryptoPP::Integer D(RSA_D);
+
+	auto Input = "TEST!";
+	RsaEncrypt(N, E, (PVOID)Input, strlen(Input) + 1, &Encrypted, &EncryptedLength);
+	RsaDecrypt(N, E, D, Encrypted, EncryptedLength, &Decrypted, &DecryptedLength);
+
+	assert(strcmp(Input, (PCHAR)Decrypted) == 0);
+
+	RsaFree(Encrypted);
+	RsaFree(Decrypted);
+}
+
+//
+// Tests AES.
+//
+static VOID TestAes() {
+	auto Key = AesRandomKey();
+	auto Iv = AesRandomIv();
+
+	PVOID Encrypted = NULL;
+	SIZE_T EncryptedLength = 0;
+
+	PVOID Decrypted = NULL;
+	SIZE_T DecryptedLength = 0;
+
+	auto Input = "TEST!";
+	AesEncrypt(Key, Iv, (PVOID)Input, strlen(Input) + 1, &Encrypted, &EncryptedLength);
+	AesDecrypt(Key, Iv, Encrypted, EncryptedLength, &Decrypted, &DecryptedLength);
+
+	assert(strcmp(Input, (PCHAR)Decrypted) == 0);
+
+	AesFree(Key);
+	AesFree(Iv);
+	AesFree(Encrypted);
+	AesFree(Decrypted);
+}
+
 int main(int Argc, LPCSTR Argv[]) {
 	if (Argc <= 1) {
 		LOG("Correct format: StreamServer BinaryName.exe");
 		return 1;
 	}
+
+	LOG("Testing RSA");
+	TestRsa();
+
+	LOG("Testing AES");
+	TestAes();
 
 	LOG("Initializing mongo");
 	if (!BootMongo()) {

@@ -157,22 +157,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Aes.h" />
     <ClInclude Include="Arch.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="Mongo.h" />
     <ClInclude Include="Net.h" />
     <ClInclude Include="Pe.h" />
+    <ClInclude Include="Rsa.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="SubsystemStreaming.h" />
     <ClInclude Include="SubsystemSymbols.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Aes.cpp" />
     <ClCompile Include="Arch.cpp" />
     <ClCompile Include="Mongo.cpp" />
     <ClCompile Include="MongoAccount.cpp" />
     <ClCompile Include="MongoLog.cpp" />
     <ClCompile Include="Pe.cpp" />
+    <ClCompile Include="Rsa.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="SubsystemStreaming.cpp" />
     <ClCompile Include="StreamServer.cpp" />

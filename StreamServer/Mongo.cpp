@@ -29,8 +29,15 @@ VOID MongoInit(LPCSTR Uri, LPCSTR DatabaseName) {
 }
 
 VOID MongoNew(LPCSTR Collection, Data *Data) {
+	//
+	// Insert an empty document.
+	//
 	bsoncxx::builder::stream::document Document;
 	auto Result = Db[Collection].insert_one(Document.view());
+
+	//
+	// Store the new unique id in our data.
+	//
 	Data->UniqueId = Result->inserted_id().get_oid().value.to_string();
 }
 
@@ -47,8 +54,6 @@ BOOLEAN MongoSave(LPCSTR Collection, Data *Data) {
 	//
 	bsoncxx::builder::stream::document Filter;
 	Filter << "_id" << bsoncxx::oid{ Data->UniqueId };
-
-	LOG("Saving " << Data->UniqueId);
 
 	//
 	// Perform the replace.
