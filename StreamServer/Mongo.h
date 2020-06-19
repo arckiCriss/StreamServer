@@ -24,7 +24,7 @@ VOID MongoInit(LPCSTR Uri, LPCSTR DatabaseName);
 //
 // Initializes a new piece of data.
 //
-VOID MongoNew(LPCSTR Collection, Data *Data);
+BOOLEAN MongoNew(LPCSTR Collection, Data *Data);
 
 //
 // Saves a piece of data.

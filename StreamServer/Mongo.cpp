@@ -18,17 +18,21 @@ VOID MongoInit(LPCSTR Uri, LPCSTR DatabaseName) {
 	Db = Client[DatabaseName];
 }
 
-VOID MongoNew(LPCSTR Collection, Data *Data) {
+BOOLEAN MongoNew(LPCSTR Collection, Data *Data) {
 	//
 	// Insert an empty document.
 	//
 	bsoncxx::builder::stream::document Document;
 	auto Result = Db[Collection].insert_one(Document.view());
+	if (!Result.has_value()) {
+		return FALSE;
+	}
 
 	//
 	// Store the new unique id in our data.
 	//
 	Data->UniqueId = Result->inserted_id().get_oid().value.to_string();
+	return TRUE;
 }
 
 BOOLEAN MongoSave(LPCSTR Collection, Data *Data) {
