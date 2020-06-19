@@ -85,3 +85,18 @@ BOOLEAN MongoLoadById(LPCSTR Collection, CONST std::string &UniqueId, Data *Data
 	return TRUE;
 }
 
+BOOLEAN MongoLoadByFilter(LPCSTR Collection, bsoncxx::document::view Filter, Data *Data) {
+	//
+	// Attempt to find it.
+	//
+	auto Found = Db[Collection].find_one(Filter);
+	if (!Found.has_value()) {
+		return FALSE;
+	}
+
+	//
+	// If we found it, load it into our data object.
+	//
+	Data->Load(Found.get_ptr());
+	return TRUE;
+}

@@ -16,6 +16,10 @@
 #include <fstream>
 #include <map>
 
+#include <cryptopp/sha3.h>
+#include <cryptopp/strciphr.h>
+#include <cryptopp/filters.h>
+
 //
 // Handles a login packet.
 //
@@ -34,6 +38,23 @@ static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packe
 	memcpy(&Client->KeyBlock, (RsaBlock*)Decrypted, DecryptedLength);
 	
 	LOG("Decrypted " << DecryptedLength << " " << Client->KeyBlock.Username);
+
+	CryptoPP::SHA3_256 Sha3;
+	std::string Hashed = "";
+	CryptoPP::StringSource("", true, new CryptoPP::HashFilter(Sha3, new CryptoPP::HexEncoder(new CryptoPP::StringSink(Hashed))));
+
+	bsoncxx::builder::stream::document Filter;
+	Filter << "Username" << std::string(Client->KeyBlock.Username);
+	Filter << "Password" << Hashed;
+
+	AccountData Account;
+	if (!MongoLoadByFilter("Accounts", Filter.view(), &Account)) {
+		LOG("Invalid username or password ({User= " << Client->KeyBlock.Username << ", Pass= " << Hashed << "})");
+		Client->Disconnect();
+		return;
+	}
+
+	LOG("Authenticated successfully");
 	Client->Authenticated = TRUE;
 
 	SubsystemStreamingOnNewConnection(Client);

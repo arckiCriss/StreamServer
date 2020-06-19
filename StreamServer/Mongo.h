@@ -37,6 +37,11 @@ BOOLEAN MongoSave(LPCSTR Collection, Data *Data);
 BOOLEAN MongoLoadById(LPCSTR Collection, CONST std::string &UniqueId, Data *Data);
 
 //
+// Loads a piece of data.
+//
+BOOLEAN MongoLoadByFilter(LPCSTR Collection, bsoncxx::document::view Filter, Data *Data);
+
+//
 // A piece of data.
 //
 class Data {

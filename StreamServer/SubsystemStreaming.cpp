@@ -10,6 +10,8 @@
 #include <fstream>
 #include <map>
 
+#define SET_BIT (1u << 31)
+
 //
 // The default code area to stream in.
 //
@@ -22,8 +24,6 @@ static char DefaultCodeArea[] = {
 // The cheat image.
 //
 static PCHAR Image = NULL;
-
-#define SET_BIT (1u << 31)
 
 //
 // A table of jmp mnemonics to CPU flags.
