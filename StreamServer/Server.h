@@ -108,16 +108,12 @@ struct PacketTrace {
 	//
 	// Retrieves the id of this trace.
 	//
-	// @return The id of this packet.
-	//
 	inline UINT16 GetId(VOID) {
 		return Root.Id;
 	}
 
 	//
 	// Retrieves the opcode of this trace.
-	//
-	// @return The opcode of this packet.
 	//
 	inline UINT8 GetOpcode(VOID) {
 		return Root.Opcode;
@@ -148,8 +144,6 @@ struct PacketTrace {
 
 	//
 	// Determines if this trace is completed.
-	//
-	// @return If this packet is complete.
 	//
 	inline BOOLEAN IsComplete(VOID) {
 		if (Fragments.size() < Root.TotalParts) {

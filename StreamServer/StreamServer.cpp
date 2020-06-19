@@ -67,7 +67,7 @@ static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packe
 
 	AccountData Account;
 	if (!MongoLoadByFilter("Accounts", Filter.view(), &Account)) {
-		LOG("Invalid username or password ({User= " << Client->KeyBlock.Username << ", Pass= " << HashPassword(Client->KeyBlock.Password) << "})");
+		LOG("Invalid username or password ({User= " << Client->KeyBlock.Username << ", Pass= " << Pw << "})");
 		Client->Disconnect();
 		return;
 	}
