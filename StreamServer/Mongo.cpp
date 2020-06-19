@@ -9,12 +9,6 @@ static mongocxx::uri RemoteUri;
 static mongocxx::client Client;
 static mongocxx::database Db;
 
-//
-// Collections, which we store our data in..
-//
-static mongocxx::collection Accounts;
-static mongocxx::collection Logs;
-
 VOID MongoInit(LPCSTR Uri, LPCSTR DatabaseName) {
 	LOG("Creating URI");
 	RemoteUri = mongocxx::uri(Uri);
@@ -22,10 +16,6 @@ VOID MongoInit(LPCSTR Uri, LPCSTR DatabaseName) {
 	LOG("Creating client");
 	Client = mongocxx::client(RemoteUri);
 	Db = Client[DatabaseName];
-
-	LOG("Retrieving databases");
-	Accounts = Db["Accounts"];
-	Logs = Db["Logs"];
 }
 
 VOID MongoNew(LPCSTR Collection, Data *Data) {
