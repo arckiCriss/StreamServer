@@ -5,7 +5,7 @@ original code is not recoverable.
 ![G](https://i.imgur.com/h72lzH7.gif)
 
 ## Limitations
-* Code that reads itself is unstable, as such, some packers (VMP virtualization) are unstable [1]  
+* Code that reads itself is unstable [1]  
 * SEH is not tested  
 
 [1] It's possible to detect where the client is reading memory at, and load that memory in, so that such code may work. I may 
