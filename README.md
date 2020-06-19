@@ -13,8 +13,8 @@ add this to the repository at some point if it is stable. I did manage to run a 
 although it needs further work.
 
 ## Planned
-1) Support for relocating code so that it may be executed in different regions randomly
-2) Outputting mutated code, possibly using a JIT compiler of some sort
+1) Further work torwards obfuscating inner working of the process (generating API wrappers over using direct imports, etc.)
+2) Mutation of code during the streaming process
 3) Plugin support
 4) Unit tests
 
