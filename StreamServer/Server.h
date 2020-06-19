@@ -250,6 +250,14 @@ public:
 	// If they're connected.
 	//
 	BOOLEAN Connected = TRUE;
+	//
+	// If this client has authenticated with a username & password.
+	//
+	BOOLEAN Authenticated = FALSE;
+	//
+	// The RSA key block.
+	//
+	RsaBlock KeyBlock;
 
 	//
 	// The server-sided image.

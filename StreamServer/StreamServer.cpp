@@ -17,9 +17,38 @@
 #include <map>
 
 //
+// Handles a login packet.
+//
+static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
+	LOG("Logging in..");
+	auto Body = (PacketC2SLogin*)P->Body;
+
+	PVOID Decrypted = NULL;
+	SIZE_T DecryptedLength = 0;
+
+	CryptoPP::Integer N(RSA_N);
+	CryptoPP::Integer E(RSA_E);
+	CryptoPP::Integer D(RSA_D);
+
+	RsaDecrypt(N, E, D, Body->RsaBlock, Body->RsaBlockSize, &Decrypted, &DecryptedLength);
+	memcpy(&Client->KeyBlock, (RsaBlock*)Decrypted, DecryptedLength);
+	
+	LOG("Decrypted " << DecryptedLength << " " << Client->KeyBlock.Username);
+	Client->Authenticated = TRUE;
+
+	SubsystemStreamingOnNewConnection(Client);
+	RsaFree(Decrypted);
+}
+
+//
 // Handles an initialized packet.
 //
 static VOID OnInitializedPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
+	if (!Client->Authenticated) {
+		Client->Disconnect();
+		return;
+	}
+
 	if (Client->Allocated) {
 		Client->Disconnect();
 		return;
@@ -34,7 +63,6 @@ static VOID OnInitializedPacket(PVOID Ctx, Server *Server, ServerClient *Client,
 //
 static VOID OnNewConnection(ServerClient *Client) {
 	LOG("New connection");
-	SubsystemStreamingOnNewConnection(Client);
 }
 
 //
@@ -60,6 +88,7 @@ static BOOLEAN StartServer(VOID) {
 	Server.OnNewConnection = OnNewConnection;
 	Server.OnBadPacket = OnBadPacket;
 	Server.OnMalformedData = OnMalformedData;
+	Server.RegisterHandler(OP_C2S_LOGIN, OnLoginPacket, NULL, sizeof(PacketC2SLogin));
 	Server.RegisterHandler(OP_C2S_INITIALIZED, OnInitializedPacket, NULL, sizeof(PacketC2SInitialized));
 
 	SubsystemStreamingInitNet(&Server);
@@ -120,7 +149,9 @@ static VOID TestRsa() {
 	RsaEncrypt(N, E, (PVOID)Input, strlen(Input) + 1, &Encrypted, &EncryptedLength);
 	RsaDecrypt(N, E, D, Encrypted, EncryptedLength, &Decrypted, &DecryptedLength);
 
-	assert(strcmp(Input, (PCHAR)Decrypted) == 0);
+	if (strcmp(Input, (PCHAR)Decrypted) != 0) {
+		LOG("Test failed");
+	}
 
 	RsaFree(Encrypted);
 	RsaFree(Decrypted);
@@ -143,7 +174,9 @@ static VOID TestAes() {
 	AesEncrypt(Key, Iv, (PVOID)Input, strlen(Input) + 1, &Encrypted, &EncryptedLength);
 	AesDecrypt(Key, Iv, Encrypted, EncryptedLength, &Decrypted, &DecryptedLength);
 
-	assert(strcmp(Input, (PCHAR)Decrypted) == 0);
+	if (strcmp(Input, (PCHAR)Decrypted) != 0) {
+		LOG("Test failed");
+	}
 
 	AesFree(Key);
 	AesFree(Iv);

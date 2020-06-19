@@ -1,6 +1,9 @@
 #pragma once
 #include <windows.h>
 #include <cstdint>
+
+#include <cryptopp/aes.h>
+
 #include "Arch.h"
 
 #pragma comment (lib, "Ws2_32.lib")
@@ -18,6 +21,33 @@
 #define OP_S2C_RUN_CODE 4
 
 #pragma pack(push, 1)
+struct RsaBlock {
+	//
+	// The login username.
+	//
+	CHAR Username[32] = { 0 };
+	//
+	// The login password.
+	//
+	CHAR Password[32] = { 0 };
+	//
+	// The AES key to use.
+	//
+	UCHAR SendKey[CryptoPP::AES::MAX_KEYLENGTH];
+	//
+	// The AES IV to use.
+	//
+	UCHAR SendIv[CryptoPP::AES::BLOCKSIZE];
+	//
+	// The AES key to use.
+	//
+	UCHAR RecvKey[CryptoPP::AES::MAX_KEYLENGTH];
+	//
+	// The AES IV to use.
+	//
+	UCHAR RecvIv[CryptoPP::AES::BLOCKSIZE];
+};
+
 //
 // A login packet.
 //
@@ -26,6 +56,14 @@ struct PacketC2SLogin {
 	// The version of the loader.
 	//
 	UINT32 Version = 0;
+	//
+	// The size of the RSA block.
+	//
+	SIZE_T RsaBlockSize = 0;
+	//
+	// A block of RSA encrypted data.
+	//
+	CHAR RsaBlock[0x1000] = { 0 };
 };
 
 //

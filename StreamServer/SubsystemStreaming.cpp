@@ -228,7 +228,7 @@ static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 		return;
 	}
 
-	LOG("Requesting " << Body->Address);
+	// LOG("Requesting " << Body->Address);
 
 	//
 	// If we injected other instructions in place of the original one..

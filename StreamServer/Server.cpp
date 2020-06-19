@@ -117,6 +117,7 @@ NOINLINE VOID Server::Accept(VOID) {
 				if (OnNewConnection) {
 					OnNewConnection(Client);
 				}
+
 				NEW_THREAD_CONTEXT Context;
 				Context.Server = this;
 				Context.Client = Client;
@@ -167,7 +168,8 @@ NOINLINE BOOLEAN ServerClient::AttemptRecv(VOID) {
 			auto &Trace = Traces[CurrentPart.Id];
 			Trace.Assemble(CurrentPart);
 
-			if (Trace.IsComplete()) {
+			auto Pkt = Packet();
+			if (Trace.Combine(&Pkt)) {
 				//
 				// Verify the packet is consistent..
 				//
@@ -180,13 +182,10 @@ NOINLINE BOOLEAN ServerClient::AttemptRecv(VOID) {
 					Decoded = TRUE;
 					return Decoded;
 				}
-			}
 
-			auto Pkt = Packet();
-			if (Trace.Combine(&Pkt)) {
 				Server->HandlePacket(&Pkt, this);
+				Traces[CurrentPart.Id] = PacketTrace();
 			}
-			Traces[CurrentPart.Id] = PacketTrace();
 
 			FragmentOff = 0;
 			Decoded = TRUE;
