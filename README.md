@@ -15,7 +15,8 @@ although it needs further work.
 ## Planned
 1) Support for relocating code so that it may be executed in different regions randomly
 2) Outputting mutated code, possibly using a JIT compiler of some sort
-3) Unit tests
+3) Plugin support
+4) Unit tests
 
 ## Building
 1) Build libudis86
