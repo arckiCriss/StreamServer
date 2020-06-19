@@ -12,11 +12,19 @@ original code is not recoverable.
 add this to the repository at some point if it is stable. I did manage to run a VMP ultra binary with a few minutes of testing, 
 although it needs further work.
 
-## Planned
-1) Further work torwards obfuscating inner working of the process (generating API wrappers over using direct imports, etc.)
-2) Mutation of code during the streaming process
-3) Plugin support
-4) Unit tests
+## Features
+* Instruction streaming
+* Control flow unrolling, by replacing all conditionals with direct branches
+* Robust networking based on fragments, able to handle arbitrary packet sizes
+* Encrypted networking using RSA key exchange w/ AES
+* Database backend, with easy to use C++ object wrappers
+* Account system, with secure password storage
+
+#### Planned
+* Further work torwards obfuscating inner working of the process (generating API wrappers over using direct imports, etc.)
+* Mutation of code during the streaming process
+* Plugin support
+* Unit tests
 
 ## Building
 1) Build libudis86
