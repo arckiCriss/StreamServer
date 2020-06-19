@@ -6,7 +6,7 @@ original code is not recoverable.
 
 ## Limitations
 * Code that reads itself is unstable [1]  
-* SEH is not tested  
+* SEH, and various other PE features are not tested  
 
 [1] It's possible to detect where the client is reading memory at, and load that memory in, so that such code may work. I may 
 add this to the repository at some point if it is stable. I did manage to run a VMP ultra binary with a few minutes of testing, 
