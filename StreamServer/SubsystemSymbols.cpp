@@ -11,13 +11,7 @@ static VOID OnFulfillRequestSymbolAddressPacket(PVOID Ctx, Server *Server, Serve
 	NB.Address = Request.FillAddress;
 	memcpy(NB.Data, &Body->Address, sizeof(Body->Address));
 	NB.Length = sizeof(Body->Address);
-
-	Packet NP;
-	NP.Opcode = OP_S2C_WRITE;
-	NP.Body = &NB;
-	NP.BodyLength = sizeof(NB);
-
-	Client->Send(&NP);
+	Client->SendWrapped(OP_S2C_WRITE, NB);
 }
 
 BOOLEAN SubsystemSymbolsInit() {

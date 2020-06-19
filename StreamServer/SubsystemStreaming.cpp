@@ -102,13 +102,7 @@ static BOOLEAN PeResolveImports(ServerClient *Client) {
 			NB.RequestId = Id;
 			strcpy_s(NB.ModuleName, ModuleName);
 			strcpy_s(NB.SymbolName, ImportByName->Name);
-
-			Packet NP;
-			NP.Opcode = OP_S2C_REQUEST_SYMBOL_ADDR;
-			NP.Body = &NB;
-			NP.BodyLength = sizeof(NB);
-
-			Client->Send(&NP);
+			Client->SendWrapped(OP_S2C_REQUEST_SYMBOL_ADDR, NB);
 		}
 	}
 
@@ -161,13 +155,7 @@ static VOID WriteFromImage(ServerClient *Client, PVOID At, SIZE_T Size) {
 		NB.Address = (PCHAR)Client->Allocated + (UINT64)At + Off;
 		memcpy(NB.Data, (PCHAR)Client->Image + (UINT64)At + Off, ToWrite);
 		NB.Length = ToWrite;
-
-		Packet NP;
-		NP.Opcode = OP_S2C_WRITE;
-		NP.Body = &NB;
-		NP.BodyLength = sizeof(NB);
-
-		Client->Send(&NP);
+		Client->SendWrapped(OP_S2C_WRITE, NB);
 
 		Rem -= ToWrite;
 		Off += ToWrite;
@@ -191,13 +179,7 @@ static VOID WriteBps(ServerClient *Client, PVOID At, SIZE_T Size) {
 		NB.Address = (PCHAR)Client->Allocated + (UINT64)At + Off;
 		memcpy(NB.Data, Ccs, ToWrite);
 		NB.Length = ToWrite;
-
-		Packet NP;
-		NP.Opcode = OP_S2C_WRITE;
-		NP.Body = &NB;
-		NP.BodyLength = sizeof(NB);
-
-		Client->Send(&NP);
+		Client->SendWrapped(OP_S2C_WRITE, NB);
 
 		Rem -= ToWrite;
 		Off += ToWrite;
@@ -264,13 +246,8 @@ static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 			NB.Address = Body->Address;
 			memcpy(NB.Data, Opcodes, Length);
 			NB.Length = Length;
+			Client->SendWrapped(OP_S2C_WRITE, NB);
 
-			Packet NP;
-			NP.Opcode = OP_S2C_WRITE;
-			NP.Body = &NB;
-			NP.BodyLength = sizeof(NB);
-
-			Client->Send(&NP);
 			Injected = TRUE;
 		}
 	}
@@ -281,13 +258,7 @@ static VOID OnRequestInstructionPacket(PVOID Ctx, Server *Server, ServerClient *
 		NB.Address = Body->Address;
 		memcpy(NB.Data, (PCHAR)Client->Image + Off, Length);
 		NB.Length = Length;
-
-		Packet NP;
-		NP.Opcode = OP_S2C_WRITE;
-		NP.Body = &NB;
-		NP.BodyLength = sizeof(NB);
-
-		Client->Send(&NP);
+		Client->SendWrapped(OP_S2C_WRITE, NB);
 	}
 }
 
@@ -342,13 +313,7 @@ VOID SubsystemStreamingInitialized(ServerClient *Client, PacketC2SInitialized *P
 	}
 
 	PacketS2CRunCode NB;
-
-	Packet NP;
-	NP.Opcode = OP_S2C_RUN_CODE;
-	NP.Body = &NB;
-	NP.BodyLength = sizeof(NB);
-
-	Client->Send(&NP);
+	Client->SendWrapped(OP_S2C_RUN_CODE, NB);
 }
 
 VOID SubsystemStreamingOnNewConnection(ServerClient *Client) {
@@ -356,12 +321,7 @@ VOID SubsystemStreamingOnNewConnection(ServerClient *Client) {
 	Body.Length = SizeOfImage();
 	Body.Off = EpOfImage();
 
-	Packet Packet;
-	Packet.Opcode = OP_S2C_INIT;
-	Packet.Body = &Body;
-	Packet.BodyLength = sizeof(Body);
-
-	Client->Send(&Packet);
+	Client->SendWrapped(OP_S2C_INIT, Body);
 }
 
 VOID SubsystemStreamingInitNet(Server *Server) {

@@ -318,6 +318,17 @@ public:
 	// Sends a packet to the host.
 	//
 	VOID Send(Packet *Packet);
+	//
+	// Sends a wrapped packet.
+	//
+	template<typename T>
+	inline VOID SendWrapped(UINT8 Opcode, T &t) {
+		Packet NP;
+		NP.Opcode = Opcode;
+		NP.Body = &t;
+		NP.BodyLength = sizeof(t);
+		Send(&NP);
+	}
 
 public:
 	//
