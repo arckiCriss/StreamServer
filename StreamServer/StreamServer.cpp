@@ -21,6 +21,16 @@
 #include <cryptopp/filters.h>
 
 //
+// Hashes the provided password.
+//
+static std::string HashPassword(CONST std::string &Raw) {
+	CryptoPP::SHA3_256 Sha3;
+	std::string Hashed = "";
+	CryptoPP::StringSource(Raw, true, new CryptoPP::HashFilter(Sha3, new CryptoPP::HexEncoder(new CryptoPP::StringSink(Hashed))));
+	return Hashed;
+}
+
+//
 // Handles a login packet.
 //
 static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packet *P) {
@@ -39,17 +49,14 @@ static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packe
 	
 	LOG("Decrypted " << DecryptedLength << " " << Client->KeyBlock.Username);
 
-	CryptoPP::SHA3_256 Sha3;
-	std::string Hashed = "";
-	CryptoPP::StringSource("", true, new CryptoPP::HashFilter(Sha3, new CryptoPP::HexEncoder(new CryptoPP::StringSink(Hashed))));
 
 	bsoncxx::builder::stream::document Filter;
 	Filter << "Username" << std::string(Client->KeyBlock.Username);
-	Filter << "Password" << Hashed;
+	Filter << "Password" << HashPassword(Client->KeyBlock.Password);
 
 	AccountData Account;
 	if (!MongoLoadByFilter("Accounts", Filter.view(), &Account)) {
-		LOG("Invalid username or password ({User= " << Client->KeyBlock.Username << ", Pass= " << Hashed << "})");
+		LOG("Invalid username or password ({User= " << Client->KeyBlock.Username << ", Pass= " << HashPassword(Client->KeyBlock.Password) << "})");
 		Client->Disconnect();
 		return;
 	}
