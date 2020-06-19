@@ -24,7 +24,8 @@ This is a short list of things I plan to do myself over the following months.
 1) Build libudis86
 2) Place libdus86 headers & libraries in appropriate folders
 3) Install mongocxx driver x64 triplet using vcpkg
-4) Build project in visual studio
+4) Install cryptopp x64 triplet using vcpkg
+5) Build project in visual studio
 
 ## Running
 This is a PoC, and not meant to be a full fledged DRM solution (although one day it may be.) It currently supports streaming one 
