@@ -18,6 +18,16 @@
 #define BIND_PORT "8263"
 
 //
+// The URI to use for mongo.
+//
+#define MONGO_URI "mongodb://localhost:27017"
+
+//
+// The database to use.
+//
+#define MONGO_DB "Stream"
+
+//
 // If defined, all conditional branches will be replaced with direct ones.
 //
 //#define UNROLL_CONTROL_FLOW

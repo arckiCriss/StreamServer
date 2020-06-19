@@ -1,3 +1,4 @@
+#include "Mongo.h"
 #include "Server.h"
 #include "Logging.h"
 #include "Config.h"
@@ -79,15 +80,45 @@ static BOOLEAN StartServer(VOID) {
 	return TRUE;
 }
 
+//
+// Logs the booted message.
+//
+static VOID LogBootedMsg(VOID) {
+	LogData Log;
+	Log.Msg = "Server booted!";
+	MongoNew("Logs", &Log);
+	MongoSave("Logs", &Log);
+}
 
-int main(int Argc, CONST PCHAR Argv[]) {
+//
+// Boots mongo.
+//
+static BOOLEAN BootMongo() {
+	MongoInit(MONGO_URI, MONGO_DB);
+	LogBootedMsg();
+	return TRUE;
+}
+
+int main(int Argc, LPCSTR Argv[]) {
 	if (Argc <= 1) {
 		LOG("Correct format: StreamServer BinaryName.exe");
 		return 1;
 	}
 
+	LOG("Initializing mongo");
+	if (!BootMongo()) {
+		return 1;
+	}
+	
+
+	LOG("Initializing streaming subsystem");
 	if (!SubsystemStreamingInit(Argv[1])) {
-		LOG("Failed to init streaming subsystem");
+		return 1;
+	}
+
+	LOG("Initializing symbols subsystem");
+	if (!SubsystemSymbolsInit()) {
+		return 1;
 	}
 
 	LOG("Starting server");

@@ -15,7 +15,7 @@ VOID SubsystemStreamingOnNewConnection(ServerClient *Client);
 //
 // Initializes the streaming subsystem.
 //
-BOOLEAN SubsystemStreamingInit(CONST PCHAR ImageName);
+BOOLEAN SubsystemStreamingInit(LPCSTR ImageName);
 
 //
 // Initializes the streaming subsystem networking.

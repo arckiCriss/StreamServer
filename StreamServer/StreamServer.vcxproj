@@ -107,9 +107,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ENABLE_LOG;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;ENABLE_LOG;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,6 +160,7 @@
     <ClInclude Include="Arch.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Logging.h" />
+    <ClInclude Include="Mongo.h" />
     <ClInclude Include="Net.h" />
     <ClInclude Include="Pe.h" />
     <ClInclude Include="Server.h" />
@@ -167,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Arch.cpp" />
+    <ClCompile Include="Mongo.cpp" />
     <ClCompile Include="Pe.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="SubsystemStreaming.cpp" />

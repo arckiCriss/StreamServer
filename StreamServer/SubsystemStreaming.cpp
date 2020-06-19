@@ -368,7 +368,7 @@ VOID SubsystemStreamingInitNet(Server *Server) {
 	Server->RegisterHandler(OP_C2S_REQUEST_INSTRUCTION, OnRequestInstructionPacket, NULL, sizeof(PacketC2SRequestInstruction));
 }
 
-BOOLEAN SubsystemStreamingInit(CONST PCHAR ImageName) {
+BOOLEAN SubsystemStreamingInit(LPCSTR ImageName) {
 	LOG("Building jmp table");
 	BuildJmpTable();
 
