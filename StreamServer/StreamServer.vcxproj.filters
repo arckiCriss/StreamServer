@@ -65,5 +65,11 @@
     <ClCompile Include="Mongo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MongoLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MongoAccount.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

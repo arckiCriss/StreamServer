@@ -109,7 +109,6 @@ int main(int Argc, LPCSTR Argv[]) {
 	if (!BootMongo()) {
 		return 1;
 	}
-	
 
 	LOG("Initializing streaming subsystem");
 	if (!SubsystemStreamingInit(Argv[1])) {

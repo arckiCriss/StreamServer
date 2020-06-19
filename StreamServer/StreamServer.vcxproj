@@ -170,6 +170,8 @@
   <ItemGroup>
     <ClCompile Include="Arch.cpp" />
     <ClCompile Include="Mongo.cpp" />
+    <ClCompile Include="MongoAccount.cpp" />
+    <ClCompile Include="MongoLog.cpp" />
     <ClCompile Include="Pe.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="SubsystemStreaming.cpp" />
