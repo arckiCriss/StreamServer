@@ -2,6 +2,9 @@
 #include "Logging.h"
 #include "Config.h"
 
+#include "Rsa.h"
+#include "Aes.h"
+
 #include <future>
 #include <thread>
 #include <chrono>
@@ -126,6 +129,20 @@ NOINLINE VOID Server::Accept(VOID) {
 		}
 	}
 }
+
+NOINLINE VOID Server::Stop(VOID) {
+	closesocket(ServerSocket);
+}
+
+NOINLINE VOID Server::RegisterHandler(UINT8 Opcode, FnHandleServerPacket Func, PVOID Ctx, UINT64 MinimumLength) {
+	ServerPacketHandler Handler;
+	Handler.Ctx = Ctx;
+	Handler.Func = Func;
+	Handler.MinimumLength = MinimumLength;
+
+	PacketHandlers[Opcode] = Handler;
+}
+
 
 NOINLINE BOOLEAN ServerClient::AttemptRecv(VOID) {
 	auto Decoded = FALSE;
@@ -254,15 +271,10 @@ NOINLINE VOID ServerClient::Disconnect(VOID) {
 	closesocket(Socket);
 }
 
-NOINLINE VOID Server::Stop(VOID) {
-	closesocket(ServerSocket);
+NOINLINE VOID ServerClient::Decrypt(PVOID Dst, SIZE_T Size, PVOID *Out, PSIZE_T OutLen) {
+	AesDecrypt(KeyBlock.RecvKey, KeyBlock.RecvIv, Dst, Size, Out, OutLen);
 }
 
-NOINLINE VOID Server::RegisterHandler(UINT8 Opcode, FnHandleServerPacket Func, PVOID Ctx, UINT64 MinimumLength) {
-	ServerPacketHandler Handler;
-	Handler.Ctx = Ctx;
-	Handler.Func = Func;
-	Handler.MinimumLength = MinimumLength;
-
-	PacketHandlers[Opcode] = Handler;
+NOINLINE VOID ServerClient::Encrypt(PVOID Src, SIZE_T Size, PVOID *Out, PSIZE_T OutLen) {
+	AesEncrypt(KeyBlock.RecvKey, KeyBlock.RecvIv, Src, Size, Out, OutLen);
 }

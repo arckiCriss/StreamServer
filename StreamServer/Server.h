@@ -330,6 +330,16 @@ public:
 	// Disconnects this client from the server.
 	//
 	VOID Disconnect(VOID);
+
+public:
+	//
+	// Decrypts a message.
+	//
+	VOID Decrypt(PVOID Dst, SIZE_T Size, PVOID *Out, PSIZE_T OutLen);
+	//
+	// Encrypts a message.
+	//
+	VOID Encrypt(PVOID Src, SIZE_T Size, PVOID *Out, PSIZE_T OutLen);
 };
 
 typedef VOID(*FnOnNewConnection)(ServerClient *Client);
