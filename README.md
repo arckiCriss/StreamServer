@@ -31,8 +31,7 @@ although it needs further work.
 2) Place libdus86 headers & libraries in appropriate folders
 3) Install mongocxx driver x64 triplet using vcpkg
 4) Install cryptopp x64 triplet using vcpkg
-5) Proper encryption with key exchange
-6) Build project in visual studio
+5) Build project in visual studio
 
 ## Running
 It supports streaming one single binary to every connected user out of the box.
