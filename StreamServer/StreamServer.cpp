@@ -37,6 +37,9 @@ static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packe
 	LOG("Logging in..");
 	auto Body = (PacketC2SLogin*)P->Body;
 
+	//
+	// Decrypt the RSA block, containing AES init information (for lightweight packet encryption), and login information.
+	//
 	PVOID Decrypted = NULL;
 	SIZE_T DecryptedLength = 0;
 
@@ -46,10 +49,11 @@ static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packe
 
 	RsaDecrypt(N, E, D, Body->RsaBlock, Body->RsaBlockSize, &Decrypted, &DecryptedLength);
 	memcpy(&Client->KeyBlock, (RsaBlock*)Decrypted, DecryptedLength);
-	
 	LOG("Decrypted " << DecryptedLength << " " << Client->KeyBlock.Username);
 
-
+	//
+	// Build the filter for finding the account being logged into.
+	//
 	bsoncxx::builder::stream::document Filter;
 	Filter << "Username" << std::string(Client->KeyBlock.Username);
 	Filter << "Password" << HashPassword(Client->KeyBlock.Password);
