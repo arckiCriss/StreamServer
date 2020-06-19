@@ -42,3 +42,10 @@
 // If defined, all conditional branches will be replaced with direct ones.
 //
 //#define UNROLL_CONTROL_FLOW
+
+//
+// If defined, passwords will be hashed on the client.
+//
+// This may prevent attackers from gathering passwords if they compromise the server.
+//
+#define CLIENT_SIDED_HASHING

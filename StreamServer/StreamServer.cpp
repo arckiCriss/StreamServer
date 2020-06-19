@@ -53,12 +53,17 @@ static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packe
 
 	LOG("Decrypted " << DecryptedLength << " " << Client->KeyBlock.Username);
 
+	auto Pw = std::string(Client->KeyBlock.Password);
+#ifndef CLIENT_SIDED_HASHING
+	Pw = HashPassword(Pw);
+#endif
+
 	//
 	// Build the filter for finding the account being logged into.
 	//
 	bsoncxx::builder::stream::document Filter;
 	Filter << "Username" << std::string(Client->KeyBlock.Username);
-	Filter << "Password" << HashPassword(Client->KeyBlock.Password);
+	Filter << "Password" << Pw;
 
 	AccountData Account;
 	if (!MongoLoadByFilter("Accounts", Filter.view(), &Account)) {

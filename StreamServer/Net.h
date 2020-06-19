@@ -25,11 +25,11 @@ struct RsaBlock {
 	//
 	// The login username.
 	//
-	CHAR Username[32] = { 0 };
+	CHAR Username[18] = { 0 };
 	//
 	// The login password.
 	//
-	CHAR Password[32] = { 0 };
+	CHAR Password[72] = { 0 };
 	//
 	// The AES key to use.
 	//
