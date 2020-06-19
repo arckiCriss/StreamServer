@@ -49,6 +49,8 @@ static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packe
 
 	RsaDecrypt(N, E, D, Body->RsaBlock, Body->RsaBlockSize, &Decrypted, &DecryptedLength);
 	memcpy(&Client->KeyBlock, (RsaBlock*)Decrypted, DecryptedLength);
+	RsaFree(Decrypted);
+
 	LOG("Decrypted " << DecryptedLength << " " << Client->KeyBlock.Username);
 
 	//
@@ -69,7 +71,6 @@ static VOID OnLoginPacket(PVOID Ctx, Server *Server, ServerClient *Client, Packe
 	Client->Authenticated = TRUE;
 
 	SubsystemStreamingOnNewConnection(Client);
-	RsaFree(Decrypted);
 }
 
 //
